@@ -168,7 +168,7 @@ if (!profile) {
     await supabase.auth.signOut();
     throw new Error("No profile found for this account.");
 }
-        }
+        
 
         if (profile.role !== role) {
             await supabase.auth.signOut();
