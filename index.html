@@ -199,18 +199,95 @@ async function registerStudent(e){
  msg("authMessage",data.session?"Registration submitted. Your account is pending administrator approval.":"Registration submitted. Check your email if confirmation is required. Your account is pending administrator approval.","ok");
  $("registerForm").reset();
 }
-async function login(e){
- e.preventDefault();const identity=$("loginEmail").value.trim().toLowerCase();const password=$("loginPassword").value;
- if(!identity.includes("@")){msg("authMessage","Maaloo email galmee irratti fayyadamte galchi. Student ID qofaan amma login hin danda'amu.","error");return;}
- const {data,error}=await db.auth.signInWithPassword({email:identity,password});
- if(error){msg("authMessage",error.message,"error");return;}
- currentUser=data.user;
- const {data:profile,error:profileError}=await db.from("profiles").select("id,full_name,role,grade,email").eq("id",currentUser.id).maybeSingle();
- if(profileError||!profile){
-  await db.auth.signOut();currentUser=null;
-  msg("authMessage","Your account has not been approved yet, or its profile is not ready. Please contact the school administrator.","error");return;
- }
- currentProfile=profile;showDashboard();
+async function login(e) {
+  e.preventDefault();
+
+  const button = $("loginForm").querySelector('button[type="submit"]');
+  const oldText = button.textContent;
+
+  button.disabled = true;
+  button.textContent = "Signing in...";
+
+  try {
+    const identity = $("loginEmail").value.trim().toLowerCase();
+    const password = $("loginPassword").value;
+
+    if (!identity.includes("@")) {
+      msg("authMessage", "Maaloo email galchi.", "error");
+      return;
+    }
+
+    if (!password) {
+      msg("authMessage", "Password galchi.", "error");
+      return;
+    }
+
+    msg("authMessage", "Login mirkaneessaa jira...");
+
+    const timeout = (promise, label) =>
+      Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(
+            label + " yeroo dheeraa fudhate. Internet kee ilaali."
+          )), 15000)
+        )
+      ]);
+
+    const { data, error } = await timeout(
+      db.auth.signInWithPassword({
+        email: identity,
+        password
+      }),
+      "Supabase login"
+    );
+
+    if (error) {
+      msg("authMessage", error.message, "error");
+      return;
+    }
+
+    if (!data.user) {
+      msg("authMessage", "User hin argamne. Irra deebi'i.", "error");
+      return;
+    }
+
+    currentUser = data.user;
+
+    const result = await timeout(
+      db.from("profiles")
+        .select("id,full_name,role,grade,email")
+        .eq("id", currentUser.id)
+        .maybeSingle(),
+      "Profile loading"
+    );
+
+    if (result.error) {
+      msg("authMessage",
+        "Profile database error: " + result.error.message,
+        "error");
+      return;
+    }
+
+    if (!result.data) {
+      msg("authMessage",
+        "Profile hin argamne. Admin waliin dubbadhu.",
+        "error");
+      return;
+    }
+
+    currentProfile = result.data;
+    showDashboard();
+
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+    msg("authMessage",
+      "Login error: " + (error.message || "Dogoggorri hin beekamne."),
+      "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = oldText;
+  }
 }
 async function logout(){await db.auth.signOut();currentUser=null;currentProfile=null;$("dashboard").classList.add("hidden");$("authArea").classList.remove("hidden");showAuth("login");$("loginPassword").value="";}
 function showDashboard(){
