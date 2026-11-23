@@ -314,7 +314,7 @@ async function createTeacher(e){
  const subject_id=$("newTeacherSubject").value,grade=Number($("newTeacherGrade").value),section=$("newTeacherSection").value;
  if(!full_name||!email||!subject_id||![9,10,11,12].includes(grade)||!section){msg("teacherCreateMsg","Maqaa, email, subject, grade fi section guuti.","error");return;}
  msg("teacherCreateMsg","Teacher fi assignment isaa uumuu irratti hojjechaa jira...");
- const {data,error}=await db.functions.invoke("create-teacher",{body:{full_name,email,subject_id,grade,section}});
+ const {data,error}=await db.functions.invoke("Create-teacher",{body:{full_name,email,subject_id,grade,section}});
  if(error){msg("teacherCreateMsg","Teacher uumuu hin dandeenye: "+error.message+". Edge Function create-teacher Supabase irratti deploy ta'uu isaa mirkaneessi.","error");return;}
  msg("teacherCreateMsg",data?.message||"Teacher invitation ergameera. Teacher inbox isaa haa ilaalu.","ok");
  $("teacherCreateForm").reset();await loadTeachers();
