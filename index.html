@@ -388,6 +388,7 @@ async function addSection(e){e.preventDefault();const {error}=await db.from("cla
 async function sectionAction(id,action){const s=sectionsCache.find(x=>x.id===id);if(!s)return;if(action==="edit"){const grade=prompt("Grade:",s.grade);if(grade===null)return;const section=prompt("Section:",s.section||"");if(section===null)return;const {error}=await db.from("classes").update({grade:Number(grade),section:section.toUpperCase()}).eq("id",id);if(error)alert(error.message);}else{if(!confirm("Delete this section?"))return;const {error}=await db.from("classes").delete().eq("id",id);if(error)alert(error.message);}await loadSections();}
 
 async function createTeacher(e) {
+async function createTeacher(e) {
   e.preventDefault();
 
   const full_name = $("newTeacherName").value.trim();
@@ -403,55 +404,79 @@ async function createTeacher(e) {
     return;
   }
 
-  msg("teacherCreateMsg", "Login mirkaneessaa jira...");
-
-  // Login session mirkaneessi
-  const { data: sessionData, error: sessionError } =
-    await db.auth.getSession();
-
-  const session = sessionData?.session;
-
-  if (sessionError || !session?.access_token) {
-    msg("teacherCreateMsg",
-      "Login session hin jiru. Logout godhiitii Admin account keetiin irra deebi'i.", "error");
-    return;
-  }
-
-  msg("teacherCreateMsg", "Teacher uumuu irratti hojjechaa jira...");
-
-  const { data, error } = await db.functions.invoke(
-    "Create-teacher",
-    {
-      body: { full_name, email, subject_id, grade, section },
-      headers: {
-        Authorization: `Bearer ${session.access_token}`
-      }
-    }
+  const button = $("teacherCreateForm").querySelector(
+    'button[type="submit"]'
   );
+  const oldText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Creating teacher...";
 
-  
-if (error) {
-  console.error("FULL TEACHER ERROR:", error);
+  try {
+    msg("teacherCreateMsg", "Login session mirkaneessaa jira...");
 
-  let detail = error.message;
+    const { data: sessionData, error: sessionError } =
+      await db.auth.getSession();
 
-  if (error.context) {
-    try {
-      const response = error.context.clone();
-      const result = await response.json();
-      detail = result.error || result.message || JSON.stringify(result);
-    } catch {
-      try {
-        detail = await error.context.clone().text();
-      } catch {}
+    const session = sessionData?.session;
+
+    if (sessionError || !session?.access_token) {
+      throw new Error(
+        "Admin login session hin jiru. Logout godhiitii irra deebi'i."
+      );
     }
+
+    msg("teacherCreateMsg", "Teacher account uumamaa jira...");
+
+    const { data, error } = await db.functions.invoke(
+      "Create-teacher",
+      {
+        body: { full_name, email, subject_id, grade, section },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      }
+    );
+
+    if (error) {
+      let detail = error.message;
+
+      if (error.context) {
+        try {
+          const response = error.context.clone();
+          const result = await response.json();
+          detail = result.error || result.message ||
+            JSON.stringify(result);
+        } catch {
+          try {
+            detail = await error.context.clone().text();
+          } catch {}
+        }
+      }
+
+      throw new Error(detail);
+    }
+
+    msg(
+      "teacherCreateMsg",
+      data?.message || "Teacher account uumameera.",
+      "ok"
+    );
+
+    $("teacherCreateForm").reset();
+    await loadTeachers();
+
+  } catch (error) {
+    console.error("CREATE TEACHER ERROR:", error);
+    msg(
+      "teacherCreateMsg",
+      "Teacher uumuu hin dandeenye: " +
+        (error.message || "Dogoggora hin beekamne."),
+      "error"
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = oldText;
   }
-
-  msg("teacherCreateMsg",
-    "Dogoggora: " + detail, "error");
-
-  return;
-}
 
 
 async function addAssignment(e){e.preventDefault();const rec={teacher_id:$("assignTeacher").value,subject_id:$("assignSubject").value,grade:Number($("assignGrade").value),section:$("assignSection").value};const {error}=await db.from("teacher_assignments").insert(rec);if(error){msg("teacherMsg",error.message,"error");return;}$("assignmentForm").reset();msg("teacherMsg","Teacher assignment added.","ok");await loadTeachers();}
