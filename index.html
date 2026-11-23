@@ -1,225 +1,230 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gohatsion Secondary School - Online Examination</title>
-
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    background: #f1f5f9;
-    color: #1e293b;
-}
-
-header {
-    background: #123b70;
-    color: white;
-    padding: 25px 15px;
-    text-align: center;
-}
-
-header h1 {
-    font-size: 23px;
-    margin-bottom: 8px;
-}
-
-header p {
-    font-size: 14px;
-}
-
-.container {
-    max-width: 480px;
-    margin: 35px auto;
-    padding: 15px;
-}
-
-.login-box {
-    background: white;
-    padding: 28px 22px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.login-box h2 {
-    text-align: center;
-    color: #123b70;
-    margin-bottom: 10px;
-}
-
-.description {
-    text-align: center;
-    color: #64748b;
-    margin-bottom: 25px;
-    font-size: 14px;
-}
-
-label {
-    display: block;
-    margin: 15px 0 7px;
-    font-weight: bold;
-}
-
-input, select {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    font-size: 15px;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 22px;
-    border: none;
-    border-radius: 7px;
-    background: #123b70;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1d4f91;
-}
-
-#dashboard {
-    display: none;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-top: 20px;
-}
-
-#message {
-    margin-top: 15px;
-    text-align: center;
-    color: #dc2626;
-}
-
-footer {
-    text-align: center;
-    padding: 25px;
-    color: #64748b;
-    font-size: 13px;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f1f5f9;color:#1e293b}
+header{background:#123b70;color:white;padding:25px 15px;text-align:center}
+header h1{font-size:23px;margin-bottom:8px}
+header p{font-size:14px}
+.container{max-width:480px;margin:35px auto;padding:15px}
+.login-box,#dashboard{background:white;padding:28px 22px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.login-box h2{text-align:center;color:#123b70;margin-bottom:10px}
+.description{text-align:center;color:#64748b;margin-bottom:25px;font-size:14px}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+input,select{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
+button{width:100%;padding:14px;margin-top:22px;border:none;border-radius:7px;background:#123b70;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:hover{background:#1d4f91}
+#dashboard{display:none;margin-top:20px}
+#message{margin-top:15px;text-align:center;color:#dc2626}
+#status{margin-top:15px;text-align:center;color:#2563eb}
+footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
 </style>
 </head>
-
 <body>
 
 <header>
-    <h1>GOHATSION SECONDARY SCHOOL</h1>
-    <p>Online Examination Management System</p>
+<h1>GOHATSION SECONDARY SCHOOL</h1>
+<p>Online Examination Management System</p>
 </header>
 
 <div class="container">
+<div class="login-box" id="loginBox">
+<h2>Student & Staff Login</h2>
+<p class="description">Welcome to Gohatsion Secondary School Online Examination System.</p>
 
-    <div class="login-box" id="loginBox">
+<form id="loginForm">
+<label for="role">Select User Type</label>
+<select id="role" required>
+<option value="">Select role</option>
+<option value="student">Student</option>
+<option value="teacher">Teacher</option>
+<option value="admin">Administrator</option>
+</select>
 
-        <h2>Student & Staff Login</h2>
+<div id="gradeArea">
+<label for="grade">Select Grade</label>
+<select id="grade">
+<option value="">Select grade</option>
+<option value="9">Grade 9</option>
+<option value="10">Grade 10</option>
+<option value="11">Grade 11</option>
+<option value="12">Grade 12</option>
+</select>
+</div>
 
-        <p class="description">
-            Welcome to Gohatsion Secondary School
-            Online Examination System.
-        </p>
+<label for="userId" id="userLabel">Student ID / Staff Email</label>
+<input type="text" id="userId" placeholder="Enter Student ID or Staff Email" required>
 
-        <form id="loginForm">
+<label for="password">Password</label>
+<input type="password" id="password" placeholder="Enter your password" required>
 
-            <label for="role">Select User Type</label>
-            <select id="role" required>
-                <option value="">Select role</option>
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Administrator</option>
-            </select>
+<button type="submit" id="loginButton">LOGIN</button>
+<p id="message"></p>
+<p id="status"></p>
+</form>
+</div>
 
-            <label for="grade">Select Grade</label>
-            <select id="grade" required>
-                <option value="">Select grade</option>
-                <option value="9">Grade 9</option>
-                <option value="10">Grade 10</option>
-                <option value="11">Grade 11</option>
-                <option value="12">Grade 12</option>
-            </select>
-
-            <label for="userId">Student / Staff ID</label>
-            <input
-                type="text"
-                id="userId"
-                placeholder="Enter your ID"
-                required
-            >
-
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-            >
-
-            <button type="submit">LOGIN</button>
-
-            <p id="message"></p>
-
-        </form>
-    </div>
-
-    <div id="dashboard">
-        <h2>Welcome!</h2>
-        <p id="welcomeText"></p>
-
-        <h3 style="margin-top:25px;">Examination Portal</h3>
-
-        <p style="margin-top:12px;">
-            Your examination dashboard will be available here.
-        </p>
-
-        <button onclick="logout()">Logout</button>
-    </div>
-
+<div id="dashboard">
+<h2>Welcome!</h2>
+<p id="welcomeText" style="margin-top:12px"></p>
+<h3 style="margin-top:25px">Examination Portal</h3>
+<p style="margin-top:12px">Your examination dashboard will be available here.</p>
+<button id="logoutButton">Logout</button>
+</div>
 </div>
 
 <footer>
-    <p>© 2026 Gohatsion Secondary School</p>
-    <p>Online Examination System</p>
+<p>© 2026 Gohatsion Secondary School</p>
+<p>Online Examination System</p>
 </footer>
 
-<script>
-document.getElementById("loginForm").addEventListener(
-    "submit", function(event) {
+<script type="module">
+import { createClient } from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+// Supabase project settings
+const SUPABASE_URL = "https://dpcsuoivnigkgpkjyjle.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7C7DzP0Lo3tHlFLXR7nnkA_h4K5ai15";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const roleInput = document.getElementById("role");
+const gradeInput = document.getElementById("grade");
+const gradeArea = document.getElementById("gradeArea");
+const userInput = document.getElementById("userId");
+const userLabel = document.getElementById("userLabel");
+const message = document.getElementById("message");
+const statusText = document.getElementById("status");
+const loginButton = document.getElementById("loginButton");
+
+roleInput.addEventListener("change", () => {
+    const isStudent = roleInput.value === "student";
+    gradeArea.style.display = isStudent ? "block" : "none";
+    gradeInput.required = isStudent;
+    userLabel.textContent = isStudent ? "Student ID" : "Staff Email";
+    userInput.placeholder = isStudent
+        ? "Example: GHS-0001"
+        : "Enter your email";
+    message.textContent = "";
+});
+
+document.getElementById("loginForm").addEventListener("submit", async (event) => {
     event.preventDefault();
+    message.textContent = "";
+    statusText.textContent = "Signing in...";
 
-    const role = document.getElementById("role").value;
-    const grade = document.getElementById("grade").value;
-    const userId = document.getElementById("userId").value;
+    const role = roleInput.value;
+    const enteredId = userInput.value.trim();
+    const password = document.getElementById("password").value;
+    const selectedGrade = gradeInput.value;
 
-    if (!role || !grade || !userId) {
-        document.getElementById("message").textContent =
-            "Please complete all fields.";
+    if (!role || !enteredId || !password) {
+        statusText.textContent = "";
+        message.textContent = "Please complete all required fields.";
         return;
     }
 
-    document.getElementById("message").textContent =
-        "Authentication is not connected yet. Please wait for system setup.";
+    if (role === "student" && !selectedGrade) {
+        statusText.textContent = "";
+        message.textContent = "Please select your grade.";
+        return;
+    }
+
+    loginButton.disabled = true;
+
+    try {
+        // Student ID is converted to the email format used when
+        // student accounts are created by the Edge Function.
+        const loginEmail = role === "student"
+            ? enteredId.toLowerCase() + "@students.gohatsion.edu.et"
+            : enteredId.toLowerCase();
+
+        const { data: authData, error: authError } =
+            await supabase.auth.signInWithPassword({
+                email: loginEmail,
+                password: password
+            });
+
+        if (authError) throw authError;
+
+        // Get the signed-in user's profile and verify their role.
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("id, full_name, role, grade, email")
+            .eq("id", authData.user.id)
+            .single();
+
+        if (profileError || !profile) {
+            await supabase.auth.signOut();
+            throw new Error("Your user profile was not found. Contact the school administrator.");
+        }
+
+        if (profile.role !== role) {
+            await supabase.auth.signOut();
+            throw new Error("The selected user type does not match your account.");
+        }
+
+        let actualGrade = profile.grade;
+
+        // The current student account function may leave profiles.grade empty.
+        // In that case, read the grade from the student registry.
+        if (role === "student" && !actualGrade) {
+            const { data: registry, error: registryError } = await supabase
+                .from("student_registry")
+                .select("grade, status")
+                .eq("student_id", enteredId.toUpperCase())
+                .maybeSingle();
+
+            if (registryError || !registry) {
+                await supabase.auth.signOut();
+                throw new Error("Student record could not be verified. Contact the school administrator.");
+            }
+
+            if (registry.status !== "active") {
+                await supabase.auth.signOut();
+                throw new Error("Your student account is not active yet.");
+            }
+
+            actualGrade = registry.grade;
+        }
+
+        if (role === "student" && String(actualGrade) !== selectedGrade) {
+            await supabase.auth.signOut();
+            throw new Error("The selected grade does not match your school record.");
+        }
+
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        const displayName = profile.full_name || enteredId;
+        document.getElementById("welcomeText").textContent =
+            "Name: " + displayName +
+            " | Role: " + profile.role +
+            (role === "student" ? " | Grade: " + actualGrade : "");
+
+        statusText.textContent = "";
+    } catch (error) {
+        message.textContent = error.message || "Login failed. Please try again.";
+        statusText.textContent = "";
+    } finally {
+        loginButton.disabled = false;
+    }
 });
 
-function logout() {
+document.getElementById("logoutButton").addEventListener("click", async () => {
+    await supabase.auth.signOut();
     document.getElementById("dashboard").style.display = "none";
     document.getElementById("loginBox").style.display = "block";
-}
+    document.getElementById("loginForm").reset();
+    gradeArea.style.display = "block";
+    gradeInput.required = false;
+    message.textContent = "";
+    statusText.textContent = "";
+});
 </script>
 
 </body>
