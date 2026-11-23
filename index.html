@@ -352,19 +352,30 @@ async function createTeacher(e) {
     }
   );
 
-  if (error) {
-    console.error("Create teacher error:", error);
-    msg("teacherCreateMsg",
-      "Teacher uumuu hin dandeenye: " + error.message, "error");
-    return;
+  
+if (error) {
+  console.error("FULL TEACHER ERROR:", error);
+
+  let detail = error.message;
+
+  if (error.context) {
+    try {
+      const response = error.context.clone();
+      const result = await response.json();
+      detail = result.error || result.message || JSON.stringify(result);
+    } catch {
+      try {
+        detail = await error.context.clone().text();
+      } catch {}
+    }
   }
 
   msg("teacherCreateMsg",
-    data?.message || "Teacher uumameera.", "ok");
+    "Dogoggora: " + detail, "error");
 
-  $("teacherCreateForm").reset();
-  await loadTeachers();
+  return;
 }
+
 
 async function addAssignment(e){e.preventDefault();const rec={teacher_id:$("assignTeacher").value,subject_id:$("assignSubject").value,grade:Number($("assignGrade").value),section:$("assignSection").value};const {error}=await db.from("teacher_assignments").insert(rec);if(error){msg("teacherMsg",error.message,"error");return;}$("assignmentForm").reset();msg("teacherMsg","Teacher assignment added.","ok");await loadTeachers();}
 async function deleteAssignment(id){if(!confirm("Delete this teacher assignment?"))return;const {error}=await db.from("teacher_assignments").delete().eq("id",id);if(error)alert(error.message);await loadTeachers();}
