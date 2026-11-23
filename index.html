@@ -477,7 +477,7 @@ async function createTeacher(e) {
     button.disabled = false;
     button.textContent = oldText;
   }
-
+}
 
 async function addAssignment(e){e.preventDefault();const rec={teacher_id:$("assignTeacher").value,subject_id:$("assignSubject").value,grade:Number($("assignGrade").value),section:$("assignSection").value};const {error}=await db.from("teacher_assignments").insert(rec);if(error){msg("teacherMsg",error.message,"error");return;}$("assignmentForm").reset();msg("teacherMsg","Teacher assignment added.","ok");await loadTeachers();}
 async function deleteAssignment(id){if(!confirm("Delete this teacher assignment?"))return;const {error}=await db.from("teacher_assignments").delete().eq("id",id);if(error)alert(error.message);await loadTeachers();}
@@ -590,8 +590,42 @@ $("adminExamRows").addEventListener("click",e=>{const b=e.target.closest("button
 $("teacherExamRows").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const pairs=[["viewTeacherExam","view"],["editExam","edit"],["deleteExam","delete"]];for(const [key,act] of pairs)if(b.dataset[key])teacherExamAction(b.dataset[key],act);});
 $("questionRows").addEventListener("click",e=>{const b=e.target.closest("[data-delete-question]");if(b)deleteQuestion(b.dataset.deleteQuestion);});
 
-// Restore session
-(async()=>{const {data}=await db.auth.getSession();if(!data.session)return;currentUser=data.session.user;const {data:p,error}=await db.from("profiles").select("id,full_name,role,grade,email").eq("id",currentUser.id).maybeSingle();if(!error&&p){currentProfile=p;showDashboard();}else{await db.auth.signOut();currentUser=null;}})();
+// Restore session// Restore session safely
+(async () => {
+  try {
+    const { data, error } = await db.auth.getSession();
+
+    if (error) throw error;
+    if (!data.session) return;
+
+    currentUser = data.session.user;
+
+    const { data: profile, error: profileError } =
+      await db.from("profiles")
+        .select("id,full_name,role,grade,email")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (profile) {
+      currentProfile = profile;
+      showDashboard();
+    } else {
+      await db.auth.signOut();
+      currentUser = null;
+      currentProfile = null;
+    }
+
+  } catch (error) {
+    console.error("SESSION RESTORE ERROR:", error);
+    msg(
+      "authMessage",
+      "Session error: " + error.message,
+      "error"
+    );
+  }
+})();
 </script>
 </body>
 </html>
