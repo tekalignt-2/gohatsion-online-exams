@@ -4,589 +4,720 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gohatsion Secondary School - Online Examination</title>
-
+<title>Gohatsion Secondary School Examination</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
 header{background:#12366b;color:white;padding:18px;text-align:center}
-header h2{margin:0 0 6px}
-.container{max-width:1100px;margin:22px auto;padding:12px}
+.container{max-width:1100px;margin:20px auto;padding:12px}
 .card{background:white;padding:20px;border-radius:12px;margin-bottom:18px;box-shadow:0 2px 8px #0001}
-input,select,button{width:100%;padding:12px;margin:7px 0;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
+input,select,textarea,button{width:100%;padding:12px;margin:7px 0;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
+textarea{min-height:90px}
 button{background:#1557a0;color:white;border:0;cursor:pointer;font-weight:bold}
-button:hover{background:#0d3c73}
-button.secondary{background:#64748b}
 button.success{background:#16834a}
 button.danger{background:#b42318}
+button.secondary{background:#64748b}
 .hidden{display:none}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .stat{background:#eaf2ff;padding:16px;border-radius:9px;text-align:center}
-.stat strong{font-size:25px;display:block;color:#12366b}
-nav{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px}
-nav button{width:auto;flex:1;min-width:110px}
-table{width:100%;border-collapse:collapse;background:white}
-th,td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:14px}
-th{background:#eaf2ff}
+.stat strong{display:block;font-size:24px;color:#12366b}
 .table-wrap{overflow-x:auto}
-.notice{padding:12px;border-radius:8px;margin:10px 0;background:#eff6ff}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;font-size:14px}
+th{background:#eaf2ff}
+.notice{padding:12px;background:#eff6ff;border-radius:7px;margin:10px 0}
 .error{background:#fee2e2;color:#991b1b}
 .ok{background:#dcfce7;color:#166534}
-.badge{padding:5px 8px;border-radius:5px;background:#fef3c7;color:#854d0e}
+.badge{background:#fef3c7;color:#854d0e;padding:5px 8px;border-radius:5px}
 .small{font-size:13px;color:#64748b}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button{width:auto;flex:1}
+.option-box{background:#f8fafc;padding:10px;border-radius:8px;margin:8px 0}
 footer{text-align:center;padding:20px;color:#64748b}
 </style>
 </head>
-
 <body>
+
 <header>
-  <h2>GOHATSION SECONDARY SCHOOL</h2>
-  <div>Online Examination Management System</div>
+<h2>GOHATSION SECONDARY SCHOOL</h2>
+Online Examination Management System
 </header>
 
 <div class="container">
 
 <!-- LOGIN -->
 <section id="loginSection" class="card">
-  <h2>Welcome to Gohatsion Secondary School</h2>
-  <p>Login to your account</p>
-
-  <form id="loginForm">
-    <label>Email or Student ID</label>
-    <input id="loginEmail" required placeholder="Email or Student ID">
-
-    <label>Password</label>
-    <input id="loginPassword" type="password" required placeholder="Password">
-
-    <button type="submit">Login</button>
-  </form>
-  <div id="loginMessage"></div>
-  <p class="small">Students may use their Student ID. Teachers and Admin use their registered email.</p>
+<h2>Welcome to Gohatsion Secondary School</h2>
+<form id="loginForm">
+<label>Email or Student ID</label>
+<input id="loginEmail" required placeholder="Email or Student ID">
+<label>Password</label>
+<input id="loginPassword" type="password" required placeholder="Password">
+<button type="submit">Login</button>
+</form>
+<div id="loginMessage"></div>
 </section>
 
 <!-- DASHBOARD -->
 <section id="dashboardSection" class="hidden">
-  <div class="card">
-    <h3 id="welcomeText">Welcome</h3>
-    <p id="roleText"></p>
-    <button id="logoutBtn" class="danger">Logout</button>
-  </div>
 
-  <!-- ADMIN -->
-  <div id="adminPanel" class="hidden">
-    <div class="card">
-      <h2>Administrator Dashboard</h2>
-      <div class="grid">
-        <div class="stat">Registered Students<strong id="studentCount">0</strong></div>
-        <div class="stat">Pending Students<strong id="pendingCount">0</strong></div>
-        <div class="stat">Teachers<strong id="teacherCount">0</strong></div>
-        <div class="stat">Subjects<strong id="subjectCount">0</strong></div>
-        <div class="stat">Exams<strong id="examCount">0</strong></div>
-      </div>
-      <button id="refreshBtn">Refresh Data</button>
-      <div id="adminMessage"></div>
-    </div>
+<div class="card">
+<h3 id="welcomeText"></h3>
+<p id="roleText"></p>
+<button id="logoutBtn" class="danger">Logout</button>
+</div>
 
-    <div class="card">
-      <h3>Examination Approval</h3>
-      <p class="small">Exams created by teachers are shown here. Admin reviews and publishes them.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Title</th><th>Subject</th><th>Grade</th>
-            <th>Duration</th><th>Status</th><th>Action</th>
-          </tr></thead>
-          <tbody id="adminExamRows"></tbody>
-        </table>
-      </div>
-    </div>
+<!-- ADMIN -->
+<div id="adminPanel" class="hidden">
+<div class="card">
+<h2>Administrator Dashboard</h2>
+<div class="grid">
+<div class="stat">Students<strong id="studentCount">0</strong></div>
+<div class="stat">Pending Students<strong id="pendingCount">0</strong></div>
+<div class="stat">Teachers<strong id="teacherCount">0</strong></div>
+<div class="stat">Subjects<strong id="subjectCount">0</strong></div>
+<div class="stat">Exams<strong id="examCount">0</strong></div>
+</div>
+<button id="refreshBtn">Refresh Data</button>
+<div id="adminMessage"></div>
+</div>
 
-    <div class="card">
-      <h3>Student Registry - First 100</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student ID</th><th>Grade</th><th>Status</th></tr></thead>
-          <tbody id="studentRows"></tbody>
-        </table>
-      </div>
-    </div>
+<div class="card">
+<h3>Examination Approval</h3>
+<p class="small">Approve an examination after checking its questions. At least 15 questions are required.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Title</th><th>Subject</th><th>Grade</th><th>Questions</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="adminExamRows"></tbody>
+</table>
+</div>
+</div>
 
-    <div class="card">
-      <h3>Teachers</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead>
-          <tbody id="teacherRows"></tbody>
-        </table>
-      </div>
-    </div>
+<div class="card">
+<h3>Subjects</h3>
+<div class="table-wrap">
+<table><thead><tr><th>Subject Name</th></tr></thead>
+<tbody id="subjectRows"></tbody></table>
+</div>
+</div>
+</div>
 
-    <div class="card">
-      <h3>Subjects</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Subject Name</th></tr></thead>
-          <tbody id="subjectRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<!-- TEACHER -->
+<div id="teacherPanel" class="hidden">
 
-  <!-- TEACHER -->
-  <div id="teacherPanel" class="hidden">
-    <div class="card">
-      <h2>Teacher Dashboard</h2>
-      <h3>Create New Examination</h3>
-      <p class="small">Create an examination for a subject and grade assigned to you. Admin approval is required before students can see it.</p>
+<div class="card">
+<h2>Teacher Dashboard</h2>
+<h3>Create New Examination</h3>
+<form id="examForm">
+<label>Exam Title</label>
+<input id="examTitle" required placeholder="Example: Grade 11 IT Examination">
 
-      <form id="examForm">
-        <label>Exam Title</label>
-        <input id="examTitle" required placeholder="Example: Grade 11 IT Examination">
+<label>Subject</label>
+<select id="examSubject" required>
+<option value="">Select subject</option>
+</select>
 
-        <label>Subject</label>
-        <select id="examSubject" required>
-          <option value="">Loading subjects...</option>
-        </select>
+<label>Grade</label>
+<select id="examGrade" required>
+<option value="">Select grade</option>
+</select>
 
-        <label>Grade</label>
-        <select id="examGrade" required>
-          <option value="">Select grade</option>
-          <option value="9">Grade 9</option>
-          <option value="10">Grade 10</option>
-          <option value="11">Grade 11</option>
-          <option value="12">Grade 12</option>
-        </select>
+<label>Duration (minutes)</label>
+<input id="examDuration" type="number" min="5" max="240" value="60" required>
 
-        <label>Duration (minutes)</label>
-        <input id="examDuration" type="number" min="5" max="240" value="60" required>
+<button type="submit">Create Examination</button>
+</form>
+<div id="teacherMessage"></div>
+</div>
 
-        <button type="submit">Submit Examination for Approval</button>
-      </form>
-      <div id="teacherMessage"></div>
-    </div>
+<div class="card">
+<h3>My Examinations</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Title</th><th>Grade</th><th>Questions</th><th>Status</th></tr></thead>
+<tbody id="teacherExamRows"></tbody>
+</table>
+</div>
+</div>
 
-    <div class="card">
-      <h3>My Examinations</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Title</th><th>Grade</th><th>Duration</th><th>Status</th>
-          </tr></thead>
-          <tbody id="teacherExamRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<!-- QUESTION BUILDER -->
+<div class="card">
+<h2>Question Builder</h2>
+<p class="small">Select your pending examination and add questions. Each examination should contain 15–60 questions.</p>
 
-  <!-- STUDENT -->
-  <div id="studentPanel" class="hidden">
-    <div class="card">
-      <h2>Student Dashboard</h2>
-      <p id="studentGradeText"></p>
-      <h3>Published Examinations</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Exam</th><th>Grade</th><th>Duration</th><th>Status</th></tr></thead>
-          <tbody id="studentExamRows"></tbody>
-        </table>
-      </div>
-      <div id="studentMessage"></div>
-    </div>
-  </div>
+<form id="questionForm">
+<label>Select Examination</label>
+<select id="questionExam" required>
+<option value="">Select your examination</option>
+</select>
+
+<label>Question Type</label>
+<select id="questionType" required>
+<option value="multiple_choice">Multiple Choice (A, B, C, D)</option>
+<option value="true_false">True / False</option>
+<option value="short_answer">Short Answer</option>
+</select>
+
+<label>Question</label>
+<textarea id="questionText" required placeholder="Write your question here"></textarea>
+
+<label>Question Points</label>
+<input id="questionPoints" type="number" min="1" max="100" value="1" required>
+
+<div id="multipleChoiceBox">
+<h4>Answer Options</h4>
+<div class="option-box">
+<label>Option A</label>
+<input id="optionA" placeholder="Option A">
+<label>Option B</label>
+<input id="optionB" placeholder="Option B">
+<label>Option C</label>
+<input id="optionC" placeholder="Option C">
+<label>Option D</label>
+<input id="optionD" placeholder="Option D">
+</div>
+<label>Correct Answer</label>
+<select id="correctMCQ">
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+</select>
+</div>
+
+<div id="trueFalseBox" class="hidden">
+<label>Correct Answer</label>
+<select id="correctTF">
+<option value="True">True</option>
+<option value="False">False</option>
+</select>
+</div>
+
+<div id="shortAnswerBox" class="hidden">
+<label>Expected Answer (for teacher marking)</label>
+<textarea id="expectedAnswer" placeholder="Write the expected answer"></textarea>
+</div>
+
+<button type="submit" class="success">Save Question</button>
+</form>
+<div id="questionMessage"></div>
+</div>
+
+<div class="card">
+<h3>Questions in Selected Examination</h3>
+<p id="questionCountText">Select an examination to see its questions.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>No.</th><th>Question</th><th>Type</th><th>Points</th></tr></thead>
+<tbody id="questionRows"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<!-- STUDENT -->
+<div id="studentPanel" class="hidden">
+<div class="card">
+<h2>Student Dashboard</h2>
+<p id="studentGradeText"></p>
+<h3>Published Examinations</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Exam</th><th>Grade</th><th>Duration</th><th>Status</th></tr></thead>
+<tbody id="studentExamRows"></tbody>
+</table>
+</div>
+</div>
+</div>
+
 </section>
-
 </div>
 
 <footer>Gohatsion Secondary School | Online Examination Management System</footer>
 
 <script>
-const SUPABASE_URL = "https://dpcsuoivnigkgpkjyjle.supabase.co";
-const SUPABASE_KEY = "sb_publishable_7C7DzP0Lo3tHlFLXR7nnkA_h4K5ai15";
+const SUPABASE_URL="https://dpcsuoivnigkgpkjyjle.supabase.co";
+const SUPABASE_KEY="sb_publishable_7C7DzP0Lo3tHlFLXR7nnkA_h4K5ai15";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let currentUser=null;
+let currentProfile=null;
+let subjects=[];
+let assignments=[];
+let teacherExams=[];
 
-let currentUser = null;
-let currentProfile = null;
-let allSubjects = [];
-
-const $ = id => document.getElementById(id);
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  }[char]));
+function safe(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
 }
 
-function message(id, text, type="notice") {
-  $(id).innerHTML = `<div class="notice ${type}">${escapeHTML(text)}</div>`;
+function showMessage(id,text,type="notice"){
+ $(id).innerHTML=`<div class="notice ${type}">${safe(text)}</div>`;
 }
 
-function showDashboard(role) {
-  $("loginSection").classList.add("hidden");
-  $("dashboardSection").classList.remove("hidden");
+function showDashboard(){
+ $("loginSection").classList.add("hidden");
+ $("dashboardSection").classList.remove("hidden");
+ ["adminPanel","teacherPanel","studentPanel"].forEach(id=>
+  $(id).classList.add("hidden")
+ );
 
-  $("adminPanel").classList.add("hidden");
-  $("teacherPanel").classList.add("hidden");
-  $("studentPanel").classList.add("hidden");
+ $("welcomeText").textContent="Welcome, "+currentProfile.full_name;
+ $("roleText").textContent="Role: "+currentProfile.role;
 
-  $("welcomeText").textContent =
-    "Welcome, " + (currentProfile.full_name || "User");
-  $("roleText").textContent = "Role: " + role;
-
-  if (role === "admin") {
-    $("adminPanel").classList.remove("hidden");
-    loadAdminData();
-  } else if (role === "teacher") {
-    $("teacherPanel").classList.remove("hidden");
-    loadTeacherData();
-  } else if (role === "student") {
-    $("studentPanel").classList.remove("hidden");
-    loadStudentData();
-  } else {
-    alert("Your account role is not recognized.");
-    logout();
-  }
+ if(currentProfile.role==="admin"){
+  $("adminPanel").classList.remove("hidden");
+  loadAdmin();
+ }else if(currentProfile.role==="teacher"){
+  $("teacherPanel").classList.remove("hidden");
+  loadTeacher();
+ }else if(currentProfile.role==="student"){
+  $("studentPanel").classList.remove("hidden");
+  loadStudent();
+ }else{
+  alert("Unknown account role.");
+  logout();
+ }
 }
 
-async function login(event) {
-  event.preventDefault();
-  $("loginMessage").innerHTML = "";
+async function login(e){
+ e.preventDefault();
+ let email=$("loginEmail").value.trim();
+ const password=$("loginPassword").value;
 
-  let identifier = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
+ if(!email.includes("@")){
+  email=email.toLowerCase()+"@students.gohatsion.edu.et";
+ }
 
-  if (!identifier.includes("@")) {
-    identifier = identifier.toLowerCase() +
-      "@students.gohatsion.edu.et";
-  }
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error){
+  showMessage("loginMessage",error.message,"error");
+  return;
+ }
 
-  const { data, error } = await db.auth.signInWithPassword({
-    email: identifier,
-    password
-  });
+ currentUser=data.user;
+ const result=await db.from("profiles")
+  .select("id,full_name,role,grade,email")
+  .eq("id",currentUser.id).maybeSingle();
 
-  if (error) {
-    message("loginMessage", error.message, "error");
-    return;
-  }
-
-  currentUser = data.user;
-
-  const { data: profile, error: profileError } = await db
-    .from("profiles")
-    .select("id, full_name, role, grade, email")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-  if (profileError || !profile) {
-    message("loginMessage",
-      "User profile not found. Please contact the administrator.",
-      "error");
-    await db.auth.signOut();
-    return;
-  }
-
-  currentProfile = profile;
-  showDashboard(profile.role);
-}
-
-async function logout() {
+ if(result.error||!result.data){
+  showMessage("loginMessage","User profile not found: "+(result.error?.message||""),"error");
   await db.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
-  $("dashboardSection").classList.add("hidden");
-  $("loginSection").classList.remove("hidden");
-  $("loginPassword").value = "";
+  return;
+ }
+
+ currentProfile=result.data;
+ showDashboard();
 }
 
-async function loadSubjects() {
-  const { data, error } = await db
-    .from("subjects")
-    .select("id,name")
-    .order("name");
-
-  if (error) throw error;
-
-  allSubjects = data || [];
-  $("subjectCount").textContent = allSubjects.length;
-
-  $("examSubject").innerHTML =
-    '<option value="">Select subject</option>' +
-    allSubjects.map(s =>
-      `<option value="${escapeHTML(s.id)}">${escapeHTML(s.name)}</option>`
-    ).join("");
-
-  $("subjectRows").innerHTML = allSubjects.map(s =>
-    `<tr><td>${escapeHTML(s.name)}</td></tr>`
-  ).join("");
+async function logout(){
+ await db.auth.signOut();
+ currentUser=null;
+ currentProfile=null;
+ $("dashboardSection").classList.add("hidden");
+ $("loginSection").classList.remove("hidden");
+ $("loginPassword").value="";
 }
 
-async function loadAdminData() {
-  message("adminMessage", "Loading dashboard...");
+async function loadSubjects(){
+ const {data,error}=await db.from("subjects").select("id,name").order("name");
+ if(error) throw error;
+ subjects=data||[];
 
-  try {
-    const results = await Promise.all([
-      db.from("student_registry").select("*", {count:"exact", head:true}),
-      db.from("student_registry").select("*", {count:"exact", head:true})
-        .eq("status", "pending"),
-      db.from("profiles").select("*", {count:"exact", head:true})
-        .eq("role", "teacher"),
-      db.from("exams").select("id", {count:"exact", head:true})
-    ]);
+ $("subjectCount").textContent=subjects.length;
+ $("subjectRows").innerHTML=subjects.map(s=>
+  `<tr><td>${safe(s.name)}</td></tr>`
+ ).join("");
+}
 
-    for (const result of results) {
-      if (result.error) throw result.error;
-    }
+async function loadAdmin(){
+ showMessage("adminMessage","Loading dashboard...");
+ try{
+  const r=await Promise.all([
+   db.from("student_registry").select("*",{count:"exact",head:true}),
+   db.from("student_registry").select("*",{count:"exact",head:true}).eq("status","pending"),
+   db.from("profiles").select("*",{count:"exact",head:true}).eq("role","teacher"),
+   db.from("exams").select("*",{count:"exact",head:true})
+  ]);
+  r.forEach(x=>{if(x.error)throw x.error});
 
-    $("studentCount").textContent = results[0].count ?? 0;
-    $("pendingCount").textContent = results[1].count ?? 0;
-    $("teacherCount").textContent = results[2].count ?? 0;
-    $("examCount").textContent = results[3].count ?? 0;
+  $("studentCount").textContent=r[0].count??0;
+  $("pendingCount").textContent=r[1].count??0;
+  $("teacherCount").textContent=r[2].count??0;
+  $("examCount").textContent=r[3].count??0;
 
-    await loadSubjects();
-    await loadAdminExams();
-    await loadStudents();
-    await loadTeachers();
+  await loadSubjects();
+  await loadAdminExams();
+  $("adminMessage").innerHTML="";
+ }catch(e){
+  showMessage("adminMessage",e.message,"error");
+ }
+}
 
-    $("adminMessage").innerHTML = "";
-  } catch (error) {
-    message("adminMessage", error.message, "error");
+async function loadAdminExams(){
+ const {data,error}=await db.from("exams")
+  .select("id,title,subject_id,grade,duration_minutes,approval_status,is_published")
+  .order("created_at",{ascending:false});
+ if(error)throw error;
+
+ let rows=[];
+ for(const exam of (data||[])){
+  const count=await db.from("questions")
+   .select("id",{count:"exact",head:true})
+   .eq("exam_id",exam.id);
+  if(count.error)throw count.error;
+  const n=count.count??0;
+  const subject=subjects.find(s=>s.id===exam.subject_id);
+  const status=exam.is_published?"Published":(exam.approval_status||"Pending");
+  const action=exam.is_published
+   ?'<span class="badge">Published</span>'
+   :n>=15
+    ?`<button class="success" data-approve="${safe(exam.id)}">Approve & Publish</button>`
+    :`<span class="small">Needs 15 questions</span>`;
+
+  rows.push(`<tr>
+   <td>${safe(exam.title)}</td>
+   <td>${safe(subject?.name||"Unknown")}</td>
+   <td>${safe(exam.grade)}</td>
+   <td>${n}/60</td>
+   <td>${safe(status)}</td>
+   <td>${action}</td>
+  </tr>`);
+ }
+ $("adminExamRows").innerHTML=rows.join("")||"<tr><td colspan='6'>No examinations found.</td></tr>";
+}
+
+async function loadTeacher(){
+ try{
+  await loadSubjects();
+
+  const {data,error}=await db.from("teacher_assignments")
+   .select("subject_id,grade,section")
+   .eq("teacher_id",currentUser.id);
+  if(error)throw error;
+  assignments=data||[];
+
+  const subjectIds=[...new Set(assignments.map(a=>a.subject_id))];
+  $("examSubject").innerHTML='<option value="">Select subject</option>'+
+   subjects.filter(s=>subjectIds.includes(s.id)).map(s=>
+    `<option value="${safe(s.id)}">${safe(s.name)}</option>`
+   ).join("");
+
+  updateGradeOptions();
+  await loadTeacherExams();
+ }catch(e){
+  showMessage("teacherMessage",e.message,"error");
+ }
+}
+
+function updateGradeOptions(){
+ const subjectId=$("examSubject").value;
+ const grades=[...new Set(assignments
+  .filter(a=>a.subject_id===subjectId)
+  .map(a=>a.grade))].sort((a,b)=>a-b);
+
+ $("examGrade").innerHTML='<option value="">Select grade</option>'+
+  grades.map(g=>`<option value="${g}">Grade ${g}</option>`).join("");
+}
+
+async function loadTeacherExams(){
+ const {data,error}=await db.from("exams")
+  .select("id,title,grade,duration_minutes,approval_status,is_published")
+  .eq("created_by",currentUser.id)
+  .order("created_at",{ascending:false});
+ if(error)throw error;
+ teacherExams=data||[];
+
+ let rows=[];
+ for(const e of teacherExams){
+  const q=await db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",e.id);
+  if(q.error)throw q.error;
+  const n=q.count??0;
+  rows.push(`<tr>
+   <td>${safe(e.title)}</td>
+   <td>${safe(e.grade)}</td>
+   <td>${n}/60</td>
+   <td>${safe(e.is_published?"Published":e.approval_status||"Pending")}</td>
+  </tr>`);
+ }
+
+ $("teacherExamRows").innerHTML=rows.join("")||"<tr><td colspan='4'>No examinations created yet.</td></tr>";
+
+ const pending=teacherExams.filter(e=>!e.is_published&&e.approval_status==="pending");
+ $("questionExam").innerHTML='<option value="">Select your examination</option>'+
+  pending.map(e=>`<option value="${safe(e.id)}">${safe(e.title)} - Grade ${safe(e.grade)}</option>`).join("");
+
+ await loadQuestions();
+}
+
+async function createExam(e){
+ e.preventDefault();
+ const title=$("examTitle").value.trim();
+ const subjectId=$("examSubject").value;
+ const grade=Number($("examGrade").value);
+ const duration=Number($("examDuration").value);
+
+ const allowed=assignments.some(a=>
+  a.subject_id===subjectId&&Number(a.grade)===grade
+ );
+ if(!allowed){
+  showMessage("teacherMessage","You are not assigned to this subject and grade.","error");
+  return;
+ }
+
+ const {error}=await db.from("exams").insert({
+  title,
+  subject_id:subjectId,
+  grade,
+  duration_minutes:duration,
+  created_by:currentUser.id,
+  approval_status:"pending",
+  is_published:false
+ });
+
+ if(error){
+  showMessage("teacherMessage",error.message,"error");
+  return;
+ }
+
+ showMessage("teacherMessage","Examination created. Now add your questions.","ok");
+ $("examForm").reset();
+ updateGradeOptions();
+ await loadTeacherExams();
+}
+
+function updateQuestionType(){
+ const type=$("questionType").value;
+ $("multipleChoiceBox").classList.toggle("hidden",type!=="multiple_choice");
+ $("trueFalseBox").classList.toggle("hidden",type!=="true_false");
+ $("shortAnswerBox").classList.toggle("hidden",type!=="short_answer");
+}
+
+async function saveQuestion(e){
+ e.preventDefault();
+
+ const examId=$("questionExam").value;
+ const type=$("questionType").value;
+ const questionText=$("questionText").value.trim();
+ const points=Number($("questionPoints").value);
+
+ if(!examId||!questionText){
+  showMessage("questionMessage","Select an exam and enter a question.","error");
+  return;
+ }
+
+ const existing=await db.from("questions")
+  .select("id",{count:"exact",head:true})
+  .eq("exam_id",examId);
+ if(existing.error){
+  showMessage("questionMessage",existing.error.message,"error");
+  return;
+ }
+ if((existing.count??0)>=60){
+  showMessage("questionMessage","This examination already has 60 questions.","error");
+  return;
+ }
+
+ let optionData=[];
+
+ if(type==="multiple_choice"){
+  const vals=[
+   $("optionA").value.trim(),
+   $("optionB").value.trim(),
+   $("optionC").value.trim(),
+   $("optionD").value.trim()
+  ];
+  if(vals.some(v=>!v)){
+   showMessage("questionMessage","Please enter all four options A, B, C and D.","error");
+   return;
   }
-}
+  const correct=$("correctMCQ").value;
+  optionData=vals.map((v,i)=>({
+   option_text:v,
+   is_correct:"ABCD"[i]===correct
+  }));
+ }
 
-async function loadAdminExams() {
-  const { data, error } = await db
-    .from("exams")
-    .select("id,title,subject_id,grade,duration_minutes,approval_status,is_published")
-    .order("created_at", {ascending:false});
+ if(type==="true_false"){
+  const correct=$("correctTF").value;
+  optionData=["True","False"].map(v=>({
+   option_text:v,
+   is_correct:v===correct
+  }));
+ }
 
-  if (error) throw error;
-
-  $("adminExamRows").innerHTML = (data || []).map(exam => {
-    const subject = allSubjects.find(s => s.id === exam.subject_id);
-    const status = exam.is_published ? "Published" :
-      (exam.approval_status || "Pending");
-
-    const action = exam.is_published
-      ? `<span class="badge">Published</span>`
-      : `<button class="success" data-approve="${escapeHTML(exam.id)}">Approve & Publish</button>`;
-
-    return `<tr>
-      <td>${escapeHTML(exam.title)}</td>
-      <td>${escapeHTML(subject?.name || "Unknown")}</td>
-      <td>${escapeHTML(exam.grade)}</td>
-      <td>${escapeHTML(exam.duration_minutes)} min</td>
-      <td>${escapeHTML(status)}</td>
-      <td>${action}</td>
-    </tr>`;
-  }).join("") || "<tr><td colspan='6'>No examinations found.</td></tr>";
-}
-
-async function loadStudents() {
-  const { data, error } = await db
-    .from("student_registry")
-    .select("student_id,grade,status")
-    .order("student_id")
-    .limit(100);
-
-  if (error) throw error;
-
-  $("studentRows").innerHTML = (data || []).map(s =>
-    `<tr>
-      <td>${escapeHTML(s.student_id)}</td>
-      <td>${escapeHTML(s.grade)}</td>
-      <td>${escapeHTML(s.status)}</td>
-    </tr>`
-  ).join("");
-}
-
-async function loadTeachers() {
-  const { data, error } = await db
-    .from("profiles")
-    .select("full_name,email,role")
-    .eq("role", "teacher")
-    .order("full_name");
-
-  if (error) throw error;
-
-  $("teacherRows").innerHTML = (data || []).map(t =>
-    `<tr>
-      <td>${escapeHTML(t.full_name)}</td>
-      <td>${escapeHTML(t.email)}</td>
-      <td>${escapeHTML(t.role)}</td>
-    </tr>`
-  ).join("");
-}
-
-async function loadTeacherData() {
-  try {
-    await loadSubjects();
-
-    const { data, error } = await db
-      .from("exams")
-      .select("id,title,grade,duration_minutes,approval_status,is_published")
-      .eq("created_by", currentUser.id)
-      .order("created_at", {ascending:false});
-
-    if (error) throw error;
-
-    $("teacherExamRows").innerHTML = (data || []).map(e => {
-      const status = e.is_published ? "Published" :
-        (e.approval_status || "Pending Approval");
-
-      return `<tr>
-        <td>${escapeHTML(e.title)}</td>
-        <td>${escapeHTML(e.grade)}</td>
-        <td>${escapeHTML(e.duration_minutes)} min</td>
-        <td>${escapeHTML(status)}</td>
-      </tr>`;
-    }).join("") || "<tr><td colspan='4'>You have not created an exam yet.</td></tr>";
-
-  } catch (error) {
-    message("teacherMessage", error.message, "error");
+ if(type==="short_answer"){
+  const answer=$("expectedAnswer").value.trim();
+  if(!answer){
+   showMessage("questionMessage","Enter the expected answer.","error");
+   return;
   }
+  optionData=[{option_text:answer,is_correct:true}];
+ }
+
+ const {data:question,error}=await db.from("questions")
+  .insert({
+   exam_id:examId,
+   question_text:questionText,
+   question_type:type,
+   points
+  })
+  .select("id")
+  .single();
+
+ if(error){
+  showMessage("questionMessage","Question could not be saved: "+error.message,"error");
+  return;
+ }
+
+ const {error:optionError}=await db.from("options").insert(
+  optionData.map(o=>({...o,question_id:question.id}))
+ );
+
+ if(optionError){
+  await db.from("questions").delete().eq("id",question.id);
+  showMessage("questionMessage","Options could not be saved: "+optionError.message,"error");
+  return;
+ }
+
+ showMessage("questionMessage","Question and answer options saved successfully.","ok");
+ $("questionText").value="";
+ $("optionA").value="";
+ $("optionB").value="";
+ $("optionC").value="";
+ $("optionD").value="";
+ $("expectedAnswer").value="";
+ $("questionPoints").value=1;
+
+ await loadQuestions();
+ await loadTeacherExams();
 }
 
-async function createExam(event) {
-  event.preventDefault();
+async function loadQuestions(){
+ const examId=$("questionExam").value;
+ if(!examId){
+  $("questionRows").innerHTML="";
+  $("questionCountText").textContent="Select an examination to see its questions.";
+  return;
+ }
 
-  const title = $("examTitle").value.trim();
-  const subjectId = $("examSubject").value;
-  const grade = Number($("examGrade").value);
-  const duration = Number($("examDuration").value);
+ const {data,error}=await db.from("questions")
+  .select("id,question_text,question_type,points")
+  .eq("exam_id",examId)
+  .order("id");
 
-  if (!title || !subjectId || !grade || !duration) {
-    message("teacherMessage", "Please complete all fields.", "error");
-    return;
-  }
+ if(error){
+  showMessage("questionMessage",error.message,"error");
+  return;
+ }
 
-  const { error } = await db.from("exams").insert({
-    title,
-    subject_id: subjectId,
-    grade,
-    duration_minutes: duration,
-    is_published: false,
-    created_by: currentUser.id,
-    approval_status: "pending"
-  });
+ const list=data||[];
+ $("questionCountText").textContent=
+  "Questions: "+list.length+" / 60. Minimum required: 15.";
 
-  if (error) {
-    message("teacherMessage",
-      "Exam was not created: " + error.message, "error");
-    return;
-  }
-
-  message("teacherMessage",
-    "Exam submitted successfully. Waiting for Admin approval.", "ok");
-
-  $("examForm").reset();
-  $("examDuration").value = 60;
-  await loadTeacherData();
+ $("questionRows").innerHTML=list.map((q,i)=>`<tr>
+  <td>${i+1}</td>
+  <td>${safe(q.question_text)}</td>
+  <td>${safe(q.question_type)}</td>
+  <td>${safe(q.points)}</td>
+ </tr>`).join("")||"<tr><td colspan='4'>No questions added yet.</td></tr>";
 }
 
-async function approveExam(examId) {
-  if (!confirm("Approve and publish this examination?")) return;
+async function approveExam(id){
+ if(!confirm("Approve and publish this examination?"))return;
 
-  const { error } = await db
-    .from("exams")
-    .update({
-      approval_status: "approved",
-      approved_by: currentUser.id,
-      approved_at: new Date().toISOString(),
-      is_published: true
-    })
-    .eq("id", examId);
+ const {count,error:countError}=await db.from("questions")
+  .select("id",{count:"exact",head:true}).eq("exam_id",id);
+ if(countError){
+  showMessage("adminMessage",countError.message,"error");
+  return;
+ }
+ if((count??0)<15||(count??0)>60){
+  showMessage("adminMessage","An examination must contain 15 to 60 questions before publishing.","error");
+  return;
+ }
 
-  if (error) {
-    message("adminMessage", "Approval failed: " + error.message, "error");
-    return;
-  }
+ const {error}=await db.from("exams").update({
+  approval_status:"approved",
+  approved_by:currentUser.id,
+  approved_at:new Date().toISOString(),
+  is_published:true
+ }).eq("id",id);
 
-  message("adminMessage", "Exam approved and published successfully.", "ok");
-  await loadAdminData();
+ if(error){
+  showMessage("adminMessage",error.message,"error");
+  return;
+ }
+
+ showMessage("adminMessage","Examination approved and published.","ok");
+ await loadAdmin();
 }
 
-async function loadStudentData() {
-  let grade = currentProfile.grade;
+async function loadStudent(){
+ let grade=currentProfile.grade;
 
-  // If profile grade is empty, look up the student's registry record.
-  if (!grade) {
-    const studentId = currentUser.email.split("@")[0].toUpperCase();
+ if(!grade){
+  const studentId=currentUser.email.split("@")[0].toUpperCase();
+  const {data}=await db.from("student_registry")
+   .select("grade").eq("student_id",studentId).maybeSingle();
+  grade=data?.grade;
+ }
 
-    const { data: registry, error: registryError } = await db
-      .from("student_registry")
-      .select("grade,status")
-      .eq("student_id", studentId)
-      .maybeSingle();
+ $("studentGradeText").textContent=grade?"Your Grade: "+grade:"Your grade is not registered.";
+ if(!grade)return;
 
-    if (registryError) {
-      message("studentMessage", registryError.message, "error");
-      return;
-    }
+ const {data,error}=await db.from("exams")
+  .select("title,grade,duration_minutes")
+  .eq("grade",grade).eq("is_published",true);
 
-    grade = registry?.grade;
-  }
+ if(error){
+  $("studentExamRows").innerHTML=`<tr><td>${safe(error.message)}</td></tr>`;
+  return;
+ }
 
-  $("studentGradeText").textContent =
-    grade ? "Your Grade: " + grade : "Your grade is not registered.";
-
-  if (!grade) return;
-
-  const { data, error } = await db
-    .from("exams")
-    .select("title,grade,duration_minutes")
-    .eq("grade", grade)
-    .eq("is_published", true)
-    .order("created_at", {ascending:false});
-
-  if (error) {
-    message("studentMessage", error.message, "error");
-    return;
-  }
-
-  $("studentExamRows").innerHTML = (data || []).map(e =>
-    `<tr>
-      <td>${escapeHTML(e.title)}</td>
-      <td>${escapeHTML(e.grade)}</td>
-      <td>${escapeHTML(e.duration_minutes)} minutes</td>
-      <td><span class="badge">Published</span></td>
-    </tr>`
-  ).join("") || "<tr><td colspan='4'>No published exams available.</td></tr>";
+ $("studentExamRows").innerHTML=(data||[]).map(e=>`<tr>
+  <td>${safe(e.title)}</td>
+  <td>${safe(e.grade)}</td>
+  <td>${safe(e.duration_minutes)} minutes</td>
+  <td>Published</td>
+ </tr>`).join("")||"<tr><td colspan='4'>No published examinations.</td></tr>";
 }
 
-// Event handlers
-$("loginForm").addEventListener("submit", login);
-$("examForm").addEventListener("submit", createExam);
-$("logoutBtn").addEventListener("click", logout);
-$("refreshBtn").addEventListener("click", loadAdminData);
+// Events
+$("loginForm").addEventListener("submit",login);
+$("logoutBtn").addEventListener("click",logout);
+$("examForm").addEventListener("submit",createExam);
+$("questionForm").addEventListener("submit",saveQuestion);
+$("questionType").addEventListener("change",updateQuestionType);
+$("examSubject").addEventListener("change",updateGradeOptions);
+$("questionExam").addEventListener("change",loadQuestions);
+$("refreshBtn").addEventListener("click",loadAdmin);
 
-$("adminExamRows").addEventListener("click", event => {
-  const button = event.target.closest("[data-approve]");
-  if (button) approveExam(button.dataset.approve);
+$("adminExamRows").addEventListener("click",e=>{
+ const b=e.target.closest("[data-approve]");
+ if(b)approveExam(b.dataset.approve);
 });
 
-// Restore an existing login session
-(async function restoreSession() {
-  const { data } = await db.auth.getSession();
+// Restore existing login
+(async()=>{
+ const {data}=await db.auth.getSession();
+ if(!data.session)return;
 
-  if (!data.session) return;
+ currentUser=data.session.user;
+ const {data:profile,error}=await db.from("profiles")
+  .select("id,full_name,role,grade,email")
+  .eq("id",currentUser.id).maybeSingle();
 
-  currentUser = data.session.user;
-
-  const { data: profile, error } = await db
-    .from("profiles")
-    .select("id,full_name,role,grade,email")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-  if (!error && profile) {
-    currentProfile = profile;
-    showDashboard(profile.role);
-  } else {
-    await db.auth.signOut();
-  }
+ if(!error&&profile){
+  currentProfile=profile;
+  showDashboard();
+ }else{
+  await db.auth.signOut();
+ }
 })();
 </script>
 </body>
