@@ -158,9 +158,16 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
             .eq("id", authData.user.id)
             .single();
 
-        if (profileError || !profile) {
-            await supabase.auth.signOut();
-            throw new Error("Your user profile was not found. Contact the school administrator.");
+        if (profileError) {
+    console.error("PROFILE ERROR:", profileError);
+    await supabase.auth.signOut();
+    throw new Error("Profile error: " + profileError.message);
+}
+
+if (!profile) {
+    await supabase.auth.signOut();
+    throw new Error("No profile found for this account.");
+}
         }
 
         if (profile.role !== role) {
