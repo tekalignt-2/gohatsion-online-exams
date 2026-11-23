@@ -3,25 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gohatsion Secondary School - Online Examination</title>
+<title>Gohatsion Secondary School - Admin Dashboard</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#f1f5f9;color:#1e293b}
-header{background:#123b70;color:white;padding:25px 15px;text-align:center}
-header h1{font-size:23px;margin-bottom:8px}
-header p{font-size:14px}
-.container{max-width:480px;margin:35px auto;padding:15px}
-.login-box,#dashboard{background:white;padding:28px 22px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
-.login-box h2{text-align:center;color:#123b70;margin-bottom:10px}
-.description{text-align:center;color:#64748b;margin-bottom:25px;font-size:14px}
-label{display:block;margin:15px 0 7px;font-weight:bold}
-input,select{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
-button{width:100%;padding:14px;margin-top:22px;border:none;border-radius:7px;background:#123b70;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+header{background:#123b70;color:white;padding:22px 12px;text-align:center}
+header h1{font-size:22px}
+header p{font-size:13px;margin-top:6px}
+.container{max-width:1100px;margin:25px auto;padding:15px}
+.login-box,.panel,.stat{background:white;padding:22px;border-radius:12px;box-shadow:0 3px 12px #00000010}
+.login-box{max-width:460px;margin:35px auto}
+h2,h3{color:#123b70;margin-bottom:15px}
+label{display:block;font-weight:bold;margin:13px 0 7px}
+input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:7px;font-size:15px;background:white}
+button{border:0;border-radius:7px;background:#123b70;color:white;padding:12px 16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
 button:hover{background:#1d4f91}
-#dashboard{display:none;margin-top:20px}
-#message{margin-top:15px;text-align:center;color:#dc2626}
-#status{margin-top:15px;text-align:center;color:#2563eb}
+.login-box button{width:100%;margin-top:20px}
+#message{color:#dc2626;margin-top:12px;text-align:center}
+#status{color:#2563eb;margin-top:12px;text-align:center}
+#dashboard{display:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:18px 0}
+.stat h3{font-size:14px;margin-bottom:10px}
+.stat strong{font-size:27px;color:#123b70}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.nav button{font-size:13px;padding:10px}
+.panel{margin:15px 0;overflow:hidden}
+.panel[hidden]{display:none}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:11px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:13px}
+th{background:#eaf0f8;color:#123b70}
+.table-wrap{overflow-x:auto}
+.small{font-size:13px;color:#64748b;margin:8px 0 14px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.action{margin-top:15px}
+.logout{background:#b91c1c}
+.badge{display:inline-block;padding:4px 8px;border-radius:5px;background:#e2e8f0;font-size:12px}
 footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
+@media(max-width:500px){.container{padding:10px}.panel{padding:15px}.login-box{padding:20px}}
 </style>
 </head>
 <body>
@@ -32,12 +51,11 @@ footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
 </header>
 
 <div class="container">
-<div class="login-box" id="loginBox">
-<h2>Student & Staff Login</h2>
-<p class="description">Welcome to Gohatsion Secondary School Online Examination System.</p>
 
+<div class="login-box" id="loginBox">
+<h2 style="text-align:center">School Login</h2>
 <form id="loginForm">
-<label for="role">Select User Type</label>
+<label>User Type</label>
 <select id="role" required>
 <option value="">Select role</option>
 <option value="student">Student</option>
@@ -46,7 +64,7 @@ footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
 </select>
 
 <div id="gradeArea">
-<label for="grade">Select Grade</label>
+<label>Grade</label>
 <select id="grade">
 <option value="">Select grade</option>
 <option value="9">Grade 9</option>
@@ -56,183 +74,443 @@ footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
 </select>
 </div>
 
-<label for="userId" id="userLabel">Student ID / Staff Email</label>
-<input type="text" id="userId" placeholder="Enter Student ID or Staff Email" required>
+<label id="userLabel">Student ID / Staff Email</label>
+<input id="userId" required placeholder="Enter your ID or email">
 
-<label for="password">Password</label>
-<input type="password" id="password" placeholder="Enter your password" required>
+<label>Password</label>
+<input id="password" type="password" required placeholder="Enter password">
 
-<button type="submit" id="loginButton">LOGIN</button>
+<button id="loginButton" type="submit">LOGIN</button>
 <p id="message"></p>
 <p id="status"></p>
 </form>
 </div>
 
 <div id="dashboard">
-<h2>Welcome!</h2>
-<p id="welcomeText" style="margin-top:12px"></p>
-<h3 style="margin-top:25px">Examination Portal</h3>
-<p style="margin-top:12px">Your examination dashboard will be available here.</p>
-<button id="logoutButton">Logout</button>
+<h2 id="welcomeText">Administrator Dashboard</h2>
+<p class="small">Gohatsion Secondary School management portal</p>
+
+<div class="stats">
+<div class="stat"><h3>Total Registered Students</h3><strong id="studentCount">...</strong></div>
+<div class="stat"><h3>Pending Students</h3><strong id="pendingCount">...</strong></div>
+<div class="stat"><h3>Teachers</h3><strong id="teacherCount">...</strong></div>
+<div class="stat"><h3>Subjects</h3><strong id="subjectCount">...</strong></div>
+<div class="stat"><h3>Exams</h3><strong id="examCount">...</strong></div>
+</div>
+
+<div class="nav">
+<button data-target="studentsPanel">Students</button>
+<button data-target="teachersPanel">Teachers</button>
+<button data-target="subjectsPanel">Subjects</button>
+<button data-target="classesPanel">Classes</button>
+<button data-target="examsPanel">Exams</button>
+<button id="refreshButton">Refresh Data</button>
+<button class="logout" id="logoutButton">Logout</button>
+</div>
+
+<p id="dashboardMessage" class="small"></p>
+
+<section class="panel" id="studentsPanel">
+<h3>Student Registry</h3>
+<p class="small">First 100 student records are displayed.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Student ID</th><th>Grade</th><th>Status</th></tr></thead>
+<tbody id="studentsTable"></tbody>
+</table></div>
+</section>
+
+<section class="panel" id="teachersPanel" hidden>
+<h3>Teachers</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead>
+<tbody id="teachersTable"></tbody>
+</table></div>
+<h3 style="margin-top:25px">Teacher Assignments</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Teacher ID</th><th>Subject ID</th><th>Grade</th><th>Section</th></tr></thead>
+<tbody id="assignmentsTable"></tbody>
+</table></div>
+</section>
+
+<section class="panel" id="subjectsPanel" hidden>
+<h3>Subjects</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Subject ID</th><th>Subject Name</th></tr></thead>
+<tbody id="subjectsTable"></tbody>
+</table></div>
+</section>
+
+<section class="panel" id="classesPanel" hidden>
+<h3>Classes</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Class ID</th><th>Grade</th></tr></thead>
+<tbody id="classesTable"></tbody>
+</table></div>
+</section>
+
+<section class="panel" id="examsPanel" hidden>
+<h3>Create New Examination</h3>
+<form id="examForm">
+<label>Exam Title</label>
+<input id="examTitle" required placeholder="Example: Grade 9 Mathematics Exam">
+
+<div class="form-grid">
+<div>
+<label>Subject</label>
+<select id="examSubject" required>
+<option value="">Select subject</option>
+</select>
+</div>
+<div>
+<label>Grade</label>
+<select id="examGrade" required>
+<option value="">Select grade</option>
+<option value="9">Grade 9</option>
+<option value="10">Grade 10</option>
+<option value="11">Grade 11</option>
+<option value="12">Grade 12</option>
+</select>
+</div>
+<div>
+<label>Duration (minutes)</label>
+<input id="examDuration" type="number" min="1" max="300" value="60" required>
+</div>
+</div>
+<button class="action" id="createExamButton" type="submit">Create Exam</button>
+<p id="examMessage" class="small"></p>
+</form>
+
+<h3 style="margin-top:28px">Examination List</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Title</th><th>Grade</th><th>Duration</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="examsTable"></tbody>
+</table></div>
+</section>
 </div>
 </div>
 
 <footer>
 <p>© 2026 Gohatsion Secondary School</p>
-<p>Online Examination System</p>
+<p>Online Examination Management System</p>
 </footer>
 
 <script type="module">
 import { createClient } from
 "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Supabase project settings
 const SUPABASE_URL = "https://dpcsuoivnigkgpkjyjle.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7C7DzP0Lo3tHlFLXR7nnkA_h4K5ai15";
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const roleInput = document.getElementById("role");
-const gradeInput = document.getElementById("grade");
-const gradeArea = document.getElementById("gradeArea");
-const userInput = document.getElementById("userId");
-const userLabel = document.getElementById("userLabel");
-const message = document.getElementById("message");
-const statusText = document.getElementById("status");
-const loginButton = document.getElementById("loginButton");
+const $ = id => document.getElementById(id);
+let currentProfile = null;
+let subjectsCache = [];
 
-roleInput.addEventListener("change", () => {
-    const isStudent = roleInput.value === "student";
-    gradeArea.style.display = isStudent ? "block" : "none";
-    gradeInput.required = isStudent;
-    userLabel.textContent = isStudent ? "Student ID" : "Staff Email";
-    userInput.placeholder = isStudent
-        ? "Example: GHS-0001"
-        : "Enter your email";
-    message.textContent = "";
-});
+function showRows(id, rows, columns) {
+    const body = $(id);
+    body.replaceChildren();
 
-document.getElementById("loginForm").addEventListener("submit", async (event) => {
+    if (!rows || rows.length === 0) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = columns.length;
+        td.textContent = "No records found.";
+        tr.appendChild(td);
+        body.appendChild(tr);
+        return;
+    }
+
+    rows.forEach(row => {
+        const tr = document.createElement("tr");
+        columns.forEach(column => {
+            const td = document.createElement("td");
+            td.textContent = row[column] ?? "-";
+            tr.appendChild(td);
+        });
+        body.appendChild(tr);
+    });
+}
+
+function showError(section, error) {
+    console.error(section, error);
+    $("dashboardMessage").textContent =
+        section + ": " + (error.message || "Unable to load data.");
+}
+
+async function loadDashboard() {
+    $("dashboardMessage").textContent = "Loading school data...";
+
+    const [
+        studentResult,
+        pendingResult,
+        teacherResult,
+        subjectResult,
+        examResult
+    ] = await Promise.all([
+        supabase.from("student_registry").select("*", {count:"exact",head:true}),
+        supabase.from("student_registry").select("*", {count:"exact",head:true}).eq("status","pending"),
+        supabase.from("profiles").select("*", {count:"exact",head:true}).eq("role","teacher"),
+        supabase.from("subjects").select("*", {count:"exact",head:true}),
+        supabase.from("exams").select("*", {count:"exact",head:true})
+    ]);
+
+    $("studentCount").textContent = studentResult.error ? "Error" : studentResult.count;
+    $("pendingCount").textContent = pendingResult.error ? "Error" : pendingResult.count;
+    $("teacherCount").textContent = teacherResult.error ? "Error" : teacherResult.count;
+    $("subjectCount").textContent = subjectResult.error ? "Error" : subjectResult.count;
+    $("examCount").textContent = examResult.error ? "Error" : examResult.count;
+
+    const results = await Promise.all([
+        supabase.from("student_registry")
+            .select("student_id,grade,status")
+            .order("student_id").limit(100),
+
+        supabase.from("profiles")
+            .select("full_name,email,role")
+            .eq("role","teacher").order("full_name"),
+
+        supabase.from("teacher_assignments")
+            .select("teacher_id,subject_id,grade,section")
+            .order("grade"),
+
+        supabase.from("subjects")
+            .select("id,name").order("name"),
+
+        supabase.from("classes")
+            .select("id,grade").order("grade"),
+
+        supabase.from("exams")
+            .select("id,title,grade,duration_minutes,is_published,subject_id")
+            .order("created_at",{ascending:false})
+    ]);
+
+    const names = [
+        "Student Registry","Teachers","Teacher Assignments",
+        "Subjects","Classes","Exams"
+    ];
+
+    results.forEach((result,index) => {
+        if (result.error) showError(names[index],result.error);
+    });
+
+    if (!results[0].error)
+        showRows("studentsTable",results[0].data,["student_id","grade","status"]);
+
+    if (!results[1].error)
+        showRows("teachersTable",results[1].data,["full_name","email","role"]);
+
+    if (!results[2].error)
+        showRows("assignmentsTable",results[2].data,["teacher_id","subject_id","grade","section"]);
+
+    if (!results[3].error) {
+        subjectsCache = results[3].data || [];
+        showRows("subjectsTable",subjectsCache,["id","name"]);
+        fillSubjectSelect();
+    }
+
+    if (!results[4].error)
+        showRows("classesTable",results[4].data,["id","grade"]);
+
+    if (!results[5].error)
+        renderExams(results[5].data || []);
+
+    if (!results.some(result => result.error))
+        $("dashboardMessage").textContent = "School data loaded successfully.";
+}
+
+function fillSubjectSelect() {
+    const select = $("examSubject");
+    select.replaceChildren();
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Select subject";
+    select.appendChild(first);
+
+    subjectsCache.forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject.id;
+        option.textContent = subject.name;
+        select.appendChild(option);
+    });
+}
+
+function renderExams(exams) {
+    const body = $("examsTable");
+    body.replaceChildren();
+
+    if (!exams.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 5;
+        td.textContent = "No examinations created yet.";
+        tr.appendChild(td);
+        body.appendChild(tr);
+        return;
+    }
+
+    exams.forEach(exam => {
+        const tr = document.createElement("tr");
+
+        [exam.title,exam.grade,exam.duration_minutes,
+         exam.is_published ? "Published" : "Draft"].forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+        });
+
+        const actionCell = document.createElement("td");
+        const button = document.createElement("button");
+        button.textContent = exam.is_published ? "Unpublish" : "Publish";
+        button.addEventListener("click",() => toggleExam(exam));
+        actionCell.appendChild(button);
+        tr.appendChild(actionCell);
+        body.appendChild(tr);
+    });
+}
+
+async function toggleExam(exam) {
+    const nextStatus = !exam.is_published;
+    const confirmed = confirm(
+        nextStatus
+        ? "Publish this exam? Students may be able to see it."
+        : "Unpublish this exam?"
+    );
+    if (!confirmed) return;
+
+    const {error} = await supabase.from("exams")
+        .update({is_published:nextStatus})
+        .eq("id",exam.id);
+
+    if (error) {
+        $("dashboardMessage").textContent = "Exam update failed: " + error.message;
+        return;
+    }
+
+    $("dashboardMessage").textContent = "Exam status updated.";
+    await loadDashboard();
+}
+
+$("examForm").addEventListener("submit",async event => {
     event.preventDefault();
-    message.textContent = "";
-    statusText.textContent = "Signing in...";
-
-    const role = roleInput.value;
-    const enteredId = userInput.value.trim();
-    const password = document.getElementById("password").value;
-    const selectedGrade = gradeInput.value;
-
-    if (!role || !enteredId || !password) {
-        statusText.textContent = "";
-        message.textContent = "Please complete all required fields.";
-        return;
-    }
-
-    if (role === "student" && !selectedGrade) {
-        statusText.textContent = "";
-        message.textContent = "Please select your grade.";
-        return;
-    }
-
-    loginButton.disabled = true;
+    $("examMessage").textContent = "Creating examination...";
+    $("createExamButton").disabled = true;
 
     try {
-        // Student ID is converted to the email format used when
-        // student accounts are created by the Edge Function.
-        const loginEmail = role === "student"
+        const exam = {
+            title:$("examTitle").value.trim(),
+            subject_id:$("examSubject").value,
+            grade:Number($("examGrade").value),
+            duration_minutes:Number($("examDuration").value),
+            is_published:false
+        };
+
+        if (!exam.title || !exam.subject_id || !exam.grade ||
+            !Number.isInteger(exam.duration_minutes) ||
+            exam.duration_minutes < 1) {
+            throw new Error("Please complete all exam fields correctly.");
+        }
+
+        const {error} = await supabase.from("exams").insert(exam);
+        if (error) throw error;
+
+        $("examMessage").textContent = "Exam created as a draft successfully.";
+        $("examForm").reset();
+        $("examDuration").value = 60;
+        await loadDashboard();
+    } catch (error) {
+        $("examMessage").textContent = "Error: " + error.message;
+    } finally {
+        $("createExamButton").disabled = false;
+    }
+});
+
+$("role").addEventListener("change",() => {
+    const student = $("role").value === "student";
+    $("gradeArea").style.display = student ? "block" : "none";
+    $("grade").required = student;
+    $("userLabel").textContent = student ? "Student ID" : "Staff Email";
+    $("userId").placeholder = student ? "Example: GHS-0001" : "Enter email";
+});
+
+$("loginForm").addEventListener("submit",async event => {
+    event.preventDefault();
+    $("message").textContent = "";
+    $("status").textContent = "Signing in...";
+    $("loginButton").disabled = true;
+
+    const role = $("role").value;
+    const enteredId = $("userId").value.trim();
+    const password = $("password").value;
+    const selectedGrade = $("grade").value;
+
+    try {
+        const email = role === "student"
             ? enteredId.toLowerCase() + "@students.gohatsion.edu.et"
             : enteredId.toLowerCase();
 
-        const { data: authData, error: authError } =
-            await supabase.auth.signInWithPassword({
-                email: loginEmail,
-                password: password
-            });
+        const {data:authData,error:authError} =
+            await supabase.auth.signInWithPassword({email,password});
 
         if (authError) throw authError;
 
-        // Get the signed-in user's profile and verify their role.
-        const { data: profile, error: profileError } = await supabase
+        const {data:profile,error:profileError} = await supabase
             .from("profiles")
-            .select("id, full_name, role, grade, email")
-            .eq("id", authData.user.id)
+            .select("id,full_name,role,grade,email")
+            .eq("id",authData.user.id)
             .single();
 
         if (profileError) {
-    console.error("PROFILE ERROR:", profileError);
-    await supabase.auth.signOut();
-    throw new Error("Profile error: " + profileError.message);
-}
-
-if (!profile) {
-    await supabase.auth.signOut();
-    throw new Error("No profile found for this account.");
-}
-        
-
-        if (profile.role !== role) {
             await supabase.auth.signOut();
-            throw new Error("The selected user type does not match your account.");
+            throw new Error("Profile error: " + profileError.message);
         }
 
-        let actualGrade = profile.grade;
-
-        // The current student account function may leave profiles.grade empty.
-        // In that case, read the grade from the student registry.
-        if (role === "student" && !actualGrade) {
-            const { data: registry, error: registryError } = await supabase
-                .from("student_registry")
-                .select("grade, status")
-                .eq("student_id", enteredId.toUpperCase())
-                .maybeSingle();
-
-            if (registryError || !registry) {
-                await supabase.auth.signOut();
-                throw new Error("Student record could not be verified. Contact the school administrator.");
-            }
-
-            if (registry.status !== "active") {
-                await supabase.auth.signOut();
-                throw new Error("Your student account is not active yet.");
-            }
-
-            actualGrade = registry.grade;
-        }
-
-        if (role === "student" && String(actualGrade) !== selectedGrade) {
+        if (!profile || profile.role !== role) {
             await supabase.auth.signOut();
-            throw new Error("The selected grade does not match your school record.");
+            throw new Error("Your selected role does not match your account.");
         }
 
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+        if (role !== "admin") {
+            await supabase.auth.signOut();
+            throw new Error("This dashboard is currently for administrators only.");
+        }
 
-        const displayName = profile.full_name || enteredId;
-        document.getElementById("welcomeText").textContent =
-            "Name: " + displayName +
-            " | Role: " + profile.role +
-            (role === "student" ? " | Grade: " + actualGrade : "");
+        currentProfile = profile;
+        $("loginBox").style.display = "none";
+        $("dashboard").style.display = "block";
+        $("welcomeText").textContent =
+            "Welcome, " + (profile.full_name || "Administrator");
+        $("status").textContent = "";
+        await loadDashboard();
 
-        statusText.textContent = "";
-    } catch (error) {
-        message.textContent = error.message || "Login failed. Please try again.";
-        statusText.textContent = "";
+    } catch(error) {
+        $("message").textContent = error.message || "Login failed.";
+        $("status").textContent = "";
     } finally {
-        loginButton.disabled = false;
+        $("loginButton").disabled = false;
     }
 });
 
-document.getElementById("logoutButton").addEventListener("click", async () => {
+document.querySelectorAll("[data-target]").forEach(button => {
+    button.addEventListener("click",() => {
+        document.querySelectorAll(".panel").forEach(panel => panel.hidden = true);
+        $(button.dataset.target).hidden = false;
+    });
+});
+
+$("refreshButton").addEventListener("click",loadDashboard);
+
+$("logoutButton").addEventListener("click",async () => {
     await supabase.auth.signOut();
-    document.getElementById("dashboard").style.display = "none";
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("loginForm").reset();
-    gradeArea.style.display = "block";
-    gradeInput.required = false;
-    message.textContent = "";
-    statusText.textContent = "";
+    currentProfile = null;
+    $("dashboard").style.display = "none";
+    $("loginBox").style.display = "block";
+    $("loginForm").reset();
+    $("gradeArea").style.display = "block";
+    $("grade").required = false;
+    $("message").textContent = "";
+    $("status").textContent = "";
 });
 </script>
-
 </body>
 </html>
