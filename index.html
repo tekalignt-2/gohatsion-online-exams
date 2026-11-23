@@ -30,11 +30,11 @@ footer{text-align:center;padding:20px;color:#64748b}.actions{min-width:190px}.se
 <section id="authArea">
  <div class="card">
   <h2>Welcome</h2>
-  <p>Login to your school account or register as a student.</p>
+  <p>Login to your school account using your registered email, or register as a student.</p>
   <nav><button id="showLogin">Login</button><button id="showRegister" class="secondary">Student Guest Registration</button></nav>
   <div id="authMessage"></div>
   <form id="loginForm">
-   <h3>Login</h3><label>Email or Student ID</label><input id="loginEmail" required placeholder="Email or GHS-0001">
+   <h3>Login</h3><label>Email</label><input id="loginEmail" type="email" required placeholder="Email galmee irratti fayyadamte">
    <label>Password</label><input id="loginPassword" type="password" required>
    <button type="submit">Login</button>
   </form>
@@ -114,7 +114,18 @@ footer{text-align:center;padding:20px;color:#64748b}.actions{min-width:190px}.se
 
   <div id="admin-teachers" class="admin-tab hidden">
    <div class="card"><h3 class="section-title">Teacher List & Assignments</h3>
-    <p class="small">Teacher accounts must first be created in Supabase Authentication. Select an existing teacher below to assign subject, grade and section.</p>
+    <h4>Add New Teacher Account</h4>
+    <form id="teacherCreateForm"><label>Teacher Full Name</label><input id="newTeacherName" required placeholder="Teacher full name">
+     <label>Teacher Email</label><input id="newTeacherEmail" type="email" required placeholder="teacher@example.com">
+     <label>Subject</label><select id="newTeacherSubject" required><option value="">Select subject</option></select>
+     <div class="two">
+      <div><label>Grade</label><select id="newTeacherGrade" required><option value="">Select grade</option><option value="9">Grade 9</option><option value="10">Grade 10</option><option value="11">Grade 11</option><option value="12">Grade 12</option></select></div>
+      <div><label>Section</label><select id="newTeacherSection" required><option value="">Select section</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
+     </div>
+     <button type="submit" class="success">Create Teacher & Send Invite</button>
+     <p class="small">Teacher invitation is sent by email. Subject, grade and section are assigned immediately. You can add more assignments below after creation.</p>
+    </form><div id="teacherCreateMsg"></div>
+    <hr><p class="small">Assign a subject, grade and section to an existing teacher below.</p>
     <form id="assignmentForm"><label>Teacher</label><select id="assignTeacher" required><option value="">Select teacher</option></select>
      <label>Subject</label><select id="assignSubject" required><option value="">Select subject</option></select>
      <div class="two"><select id="assignGrade" required><option value="">Grade</option><option>9</option><option>10</option><option>11</option><option>12</option></select>
@@ -189,8 +200,8 @@ async function registerStudent(e){
  $("registerForm").reset();
 }
 async function login(e){
- e.preventDefault();let identity=$("loginEmail").value.trim();const password=$("loginPassword").value;
- if(!identity.includes("@"))identity=identity.toLowerCase()+"@students.gohatsion.edu.et";
+ e.preventDefault();const identity=$("loginEmail").value.trim().toLowerCase();const password=$("loginPassword").value;
+ if(!identity.includes("@")){msg("authMessage","Maaloo email galmee irratti fayyadamte galchi. Student ID qofaan amma login hin danda'amu.","error");return;}
  const {data,error}=await db.auth.signInWithPassword({email:identity,password});
  if(error){msg("authMessage",error.message,"error");return;}
  currentUser=data.user;
@@ -248,7 +259,9 @@ async function loadSections(){
 async function loadTeachers(){
  const {data,error}=await db.from("profiles").select("id,full_name,email").eq("role","teacher").order("full_name");if(error)throw error;teachersCache=data||[];
  $("assignTeacher").innerHTML='<option value="">Select teacher</option>'+teachersCache.map(t=>`<option value="${t.id}">${esc(t.full_name)} (${esc(t.email)})</option>`).join("");
- $("assignSubject").innerHTML='<option value="">Select subject</option>'+subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+ const subjectOptions='<option value="">Select subject</option>'+subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+ $("assignSubject").innerHTML=subjectOptions;
+ $("newTeacherSubject").innerHTML=subjectOptions;
  const {data:as,error:ae}=await db.from("teacher_assignments").select("id,teacher_id,subject_id,grade,section");if(ae)throw ae;
  $("teacherRows").innerHTML=(as||[]).map(a=>{const t=teachersCache.find(x=>x.id===a.teacher_id),s=subjects.find(x=>x.id===a.subject_id);return `<tr><td>${esc(t?.full_name||a.teacher_id)}</td><td>${esc(s?.name||"")}</td><td>${a.grade}</td><td>${esc(a.section)}</td><td><button class="inline danger" data-del-assignment="${a.id}">Delete</button></td></tr>`;}).join("")||"<tr><td colspan='5'>No assignments found.</td></tr>";
 }
@@ -296,6 +309,16 @@ async function subjectAction(id,action){
 async function addSubject(e){e.preventDefault();const {error}=await db.from("subjects").insert({name:$("subjectName").value.trim()});if(error){msg("subjectMsg",error.message,"error");return;}$("subjectForm").reset();msg("subjectMsg","Subject added.","ok");await loadAdmin();}
 async function addSection(e){e.preventDefault();const {error}=await db.from("classes").insert({grade:Number($("sectionGrade").value),section:$("sectionName").value});if(error){msg("sectionMsg",error.message,"error");return;}$("sectionForm").reset();msg("sectionMsg","Section added.","ok");await loadSections();}
 async function sectionAction(id,action){const s=sectionsCache.find(x=>x.id===id);if(!s)return;if(action==="edit"){const grade=prompt("Grade:",s.grade);if(grade===null)return;const section=prompt("Section:",s.section||"");if(section===null)return;const {error}=await db.from("classes").update({grade:Number(grade),section:section.toUpperCase()}).eq("id",id);if(error)alert(error.message);}else{if(!confirm("Delete this section?"))return;const {error}=await db.from("classes").delete().eq("id",id);if(error)alert(error.message);}await loadSections();}
+async function createTeacher(e){
+ e.preventDefault();const full_name=$("newTeacherName").value.trim(),email=$("newTeacherEmail").value.trim().toLowerCase();
+ const subject_id=$("newTeacherSubject").value,grade=Number($("newTeacherGrade").value),section=$("newTeacherSection").value;
+ if(!full_name||!email||!subject_id||![9,10,11,12].includes(grade)||!section){msg("teacherCreateMsg","Maqaa, email, subject, grade fi section guuti.","error");return;}
+ msg("teacherCreateMsg","Teacher fi assignment isaa uumuu irratti hojjechaa jira...");
+ const {data,error}=await db.functions.invoke("create-teacher",{body:{full_name,email,subject_id,grade,section}});
+ if(error){msg("teacherCreateMsg","Teacher uumuu hin dandeenye: "+error.message+". Edge Function create-teacher Supabase irratti deploy ta'uu isaa mirkaneessi.","error");return;}
+ msg("teacherCreateMsg",data?.message||"Teacher invitation ergameera. Teacher inbox isaa haa ilaalu.","ok");
+ $("teacherCreateForm").reset();await loadTeachers();
+}
 async function addAssignment(e){e.preventDefault();const rec={teacher_id:$("assignTeacher").value,subject_id:$("assignSubject").value,grade:Number($("assignGrade").value),section:$("assignSection").value};const {error}=await db.from("teacher_assignments").insert(rec);if(error){msg("teacherMsg",error.message,"error");return;}$("assignmentForm").reset();msg("teacherMsg","Teacher assignment added.","ok");await loadTeachers();}
 async function deleteAssignment(id){if(!confirm("Delete this teacher assignment?"))return;const {error}=await db.from("teacher_assignments").delete().eq("id",id);if(error)alert(error.message);await loadTeachers();}
 
@@ -395,7 +418,7 @@ async function updateMyProfile(e){
 
 // Event handlers
 $("loginForm").addEventListener("submit",login);$("registerForm").addEventListener("submit",registerStudent);$("profileForm").addEventListener("submit",updateMyProfile);$("logout").onclick=logout;
-$("adminRefresh").onclick=loadAdmin;$("adminStudentForm").addEventListener("submit",addStudentRecord);$("subjectForm").addEventListener("submit",addSubject);$("sectionForm").addEventListener("submit",addSection);$("assignmentForm").addEventListener("submit",addAssignment);
+$("adminRefresh").onclick=loadAdmin;$("adminStudentForm").addEventListener("submit",addStudentRecord);$("subjectForm").addEventListener("submit",addSubject);$("sectionForm").addEventListener("submit",addSection);$("assignmentForm").addEventListener("submit",addAssignment);$("teacherCreateForm").addEventListener("submit",createTeacher);
 $("examForm").addEventListener("submit",saveExam);$("cancelExamEdit").onclick=resetExamForm;$("examSubject").addEventListener("change",updateTeacherGrades);
 $("questionForm").addEventListener("submit",saveQuestion);$("questionType").addEventListener("change",updateQuestionType);$("questionExam").addEventListener("change",loadQuestions);
 document.querySelectorAll("[data-admin-tab]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".admin-tab").forEach(x=>x.classList.add("hidden"));$("admin-"+b.dataset.adminTab).classList.remove("hidden");}));
