@@ -388,7 +388,6 @@ async function addSection(e){e.preventDefault();const {error}=await db.from("cla
 async function sectionAction(id,action){const s=sectionsCache.find(x=>x.id===id);if(!s)return;if(action==="edit"){const grade=prompt("Grade:",s.grade);if(grade===null)return;const section=prompt("Section:",s.section||"");if(section===null)return;const {error}=await db.from("classes").update({grade:Number(grade),section:section.toUpperCase()}).eq("id",id);if(error)alert(error.message);}else{if(!confirm("Delete this section?"))return;const {error}=await db.from("classes").delete().eq("id",id);if(error)alert(error.message);}await loadSections();}
 
 async function createTeacher(e) {
-async function createTeacher(e) {
   e.preventDefault();
 
   const full_name = $("newTeacherName").value.trim();
