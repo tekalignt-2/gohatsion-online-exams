@@ -444,20 +444,75 @@ async function createTeacher(e) {
           const response = error.context.clone();
           const result = await response.json();
           detail = result.error || result.message ||
-            JSON.stringify(result);
-        } catch {
-          try {
-            detail = await error.context.clone().text();
-          } catch {}
-        }
-      }
 
-      throw new Error(detail);
+async function createTeacher(e) {
+  e.preventDefault();
+
+  const full_name = $("newTeacherName").value.trim();
+  const email = $("newTeacherEmail").value.trim().toLowerCase();
+  const subject_id = $("newTeacherSubject").value;
+  const grade = Number($("newTeacherGrade").value);
+  const section = $("newTeacherSection").value.toUpperCase();
+
+  if (!full_name || !email || !subject_id ||
+      ![9, 10, 11, 12].includes(grade) ||
+      !"ABCDEFGHIJKLM".includes(section) || section.length !== 1) {
+    msg("teacherCreateMsg", "Maqaa, email, subject, grade fi section A-M guuti.", "error");
+    return;
+  }
+
+  const button = $("teacherCreateForm").querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "Creating teacher...";
+
+  try {
+    msg("teacherCreateMsg", "Admin login mirkaneessaa jira...");
+
+    const { data: sessionData, error: sessionError } =
+      await db.auth.getSession();
+
+    const session = sessionData?.session;
+
+    if (sessionError || !session?.access_token) {
+      throw new Error("Admin login hin jiru. Logout godhiitii irra deebi'i.");
+    }
+
+    msg("teacherCreateMsg", "Teacher account uumamaa jira...");
+
+    const response = await fetch(
+      SUPABASE_URL + "/functions/v1/Create-teacher",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + session.access_token
+        },
+        body: JSON.stringify({
+          full_name,
+          email,
+          subject_id,
+          grade,
+          section
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("CREATE TEACHER SERVER ERROR:", result);
+
+      throw new Error(
+        result.details
+          ? result.error + " — " + result.details
+          : result.error || result.message || "HTTP " + response.status
+      );
     }
 
     msg(
       "teacherCreateMsg",
-      data?.message || "Teacher account uumameera.",
+      result.message || "Teacher account uumameera.",
       "ok"
     );
 
@@ -468,15 +523,15 @@ async function createTeacher(e) {
     console.error("CREATE TEACHER ERROR:", error);
     msg(
       "teacherCreateMsg",
-      "Teacher uumuu hin dandeenye: " +
-        (error.message || "Dogoggora hin beekamne."),
+      "Teacher uumuu hin dandeenye: " + error.message,
       "error"
     );
   } finally {
     button.disabled = false;
-    button.textContent = oldText;
+    button.textContent = "Create Teacher & Send Invite";
   }
 }
+
 
 async function addAssignment(e){e.preventDefault();const rec={teacher_id:$("assignTeacher").value,subject_id:$("assignSubject").value,grade:Number($("assignGrade").value),section:$("assignSection").value};const {error}=await db.from("teacher_assignments").insert(rec);if(error){msg("teacherMsg",error.message,"error");return;}$("assignmentForm").reset();msg("teacherMsg","Teacher assignment added.","ok");await loadTeachers();}
 async function deleteAssignment(id){if(!confirm("Delete this teacher assignment?"))return;const {error}=await db.from("teacher_assignments").delete().eq("id",id);if(error)alert(error.message);await loadTeachers();}
