@@ -1,364 +1,220 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gohatsion Secondary School | Online Examination</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
-    header{background:#123b65;color:white;padding:20px;text-align:center}
-    main{max-width:850px;margin:25px auto;padding:15px}
-    .card{background:white;padding:22px;border-radius:12px;margin-bottom:18px;box-shadow:0 3px 12px #0001}
-    h2{color:#123b65}
-    input,select,button{width:100%;padding:12px;margin:7px 0;border:1px solid #ccd5df;border-radius:7px;font-size:16px}
-    button{background:#1264a3;color:white;border:0;font-weight:bold;cursor:pointer}
-    button:hover{background:#0c4e82}
-    .secondary{background:#64748b}
-    .hidden{display:none}
-    .message{padding:12px;border-radius:7px;margin:10px 0;background:#e2e8f0}
-    .error{background:#fee2e2;color:#991b1b}
-    .success{background:#dcfce7;color:#166534}
-    .item{padding:12px;border-bottom:1px solid #ddd}
-    .small{font-size:13px;color:#64748b}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gohatsion Secondary School | Online Examination</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#123b65;--blue:#1264a3;--bg:#f1f5f9;--ink:#172033;--muted:#64748b;--line:#d7e0ea}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:20px;text-align:center}header h1{margin:0 0 7px;font-size:24px}
+main{max-width:1000px;margin:24px auto;padding:0 14px}.card{background:#fff;padding:20px;border-radius:12px;margin:0 0 18px;box-shadow:0 3px 12px #0000000d}
+h2{color:var(--navy);margin:0 0 14px}h3{margin:18px 0 8px;color:var(--navy)}
+label{display:block;font-weight:600;margin:10px 0 4px}
+input,select,textarea,button{width:100%;padding:12px;margin:5px 0;border:1px solid var(--line);border-radius:7px;font-size:15px}
+textarea{min-height:85px;resize:vertical}button{background:var(--blue);color:#fff;border:0;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#64748b}.danger{background:#b42318}.success{background:#16803c}
+.hidden{display:none!important}.msg{padding:12px;border-radius:7px;margin:10px 0;background:#e2e8f0;white-space:pre-wrap;overflow-wrap:anywhere}
+.error{background:#fee2e2;color:#991b1b}.ok{background:#dcfce7;color:#166534}.muted{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row button{width:auto;flex:1;min-width:130px}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#eaf1f8;color:var(--navy);font-size:12px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+@media(max-width:600px){main{margin:14px auto}.card{padding:16px}header h1{font-size:20px}}
+</style>
 </head>
 <body>
-<header>
-  <h1>Gohatsion Secondary School</h1>
-  <p>Online Examination System</p>
-</header>
-
+<header><h1>Gohatsion Secondary School</h1><div>Online Examination System</div></header>
 <main>
-  <section id="loginCard" class="card">
-    <h2>Login</h2>
-    <label>Role</label>
-    <select id="loginRole">
-      <option value="student">Student</option>
-      <option value="teacher">Teacher</option>
-      <option value="admin">Admin</option>
-    </select>
+<section id="loginCard" class="card">
+<h2>Login</h2>
+<label>Role</label>
+<select id="loginRole"><option value="admin">Admin</option><option value="teacher">Teacher</option><option value="student">Student</option></select>
+<label>Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="Enter your registered email">
+<label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+<button id="loginBtn" onclick="login()">Login</button>
+<div id="loginMsg" class="msg hidden"></div>
+<p class="muted">Use the email registered with your Supabase Auth account. Student ID login is not enabled in this version because the current database does not provide an ID-to-email lookup function.</p>
+</section>
 
-    <label>Student ID or Email</label>
-    <input id="loginIdentity" placeholder="Student ID or email">
+<section id="app" class="hidden">
+<div class="card">
+<div class="row" style="align-items:center"><div style="flex:2"><h2 id="welcome">Dashboard</h2><div id="identity" class="muted"></div></div><button class="secondary" onclick="logout()">Logout</button></div>
+</div>
 
-    <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="Password">
+<section id="adminPanel" class="card hidden">
+<h2>Admin – Create Teacher Access Code</h2>
+<p class="muted">This creates a one-time teacher invitation code. It does not yet create the teacher's Auth account; a separate code-redemption function is required for that.</p>
+<div class="grid">
+<div><label>Teacher full name</label><input id="tName" placeholder="Full name"></div>
+<div><label>Teacher email</label><input id="tEmail" type="email" placeholder="teacher@example.com"></div>
+<div><label>Subject</label><select id="tSubject"><option value="">Loading subjects...</option></select></div>
+<div><label>Grade</label><select id="tGrade"><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
+<div><label>Section</label><select id="tSection"></select></div>
+</div>
+<button onclick="createTeacherCode()">Create Access Code</button>
+<div id="codeMsg" class="msg hidden"></div>
+</section>
 
-    <button id="loginBtn" onclick="login()">Login</button>
-    <div id="loginMessage" class="message hidden"></div>
-    <p class="small">Students: use Student ID. Teachers and Admins: use email.</p>
-  </section>
+<section id="teacherPanel" class="card hidden">
+<h2>Teacher Dashboard</h2>
+<h3>My assignments</h3><div id="assignments" class="muted">Loading...</div>
+<hr>
+<h3>Create an exam</h3>
+<label>Exam title</label><input id="examTitle" placeholder="e.g. Biology Unit 1">
+<div class="grid">
+<div><label>Subject</label><select id="examSubject"><option value="">Select subject</option></select></div>
+<div><label>Grade</label><select id="examGrade"><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
+<div><label>Duration (minutes)</label><input id="examDuration" type="number" min="1" max="300" value="60"></div>
+</div>
+<p class="muted">Your current exams table has no section column. Exams are therefore assigned by grade, not by section, until the database schema and RLS policies are extended safely.</p>
+<button onclick="createExam()">Save Exam for Admin Approval</button>
+<div id="examMsg" class="msg hidden"></div>
+<h3>My exams</h3><div id="teacherExams">Loading...</div>
+</section>
 
-  <section id="dashboard" class="hidden">
-    <div class="card">
-      <h2 id="welcome">Dashboard</h2>
-      <p id="userInfo"></p>
-      <button class="secondary" onclick="logout()">Logout</button>
-    </div>
+<section id="studentPanel" class="card hidden">
+<h2>Student Dashboard</h2>
+<p class="muted">Published exams for your registered grade appear below. The secure exam-taking and auto-marking workflow requires the additional submission/grading Edge Function before students can submit attempts.</p>
+<div id="studentExams">Loading...</div>
+</section>
 
-    <section id="adminPanel" class="card hidden">
-      <h2>Create Teacher Access Code</h2>
-      <p class="small">Admin qofti tokkoof code uuma. Teacher account guutuu uumuu miti.</p>
-
-      <input id="teacherName" placeholder="Teacher full name">
-      <input id="teacherEmail" type="email" placeholder="Teacher email">
-
-      <label>Subject</label>
-      <select id="teacherSubject">
-        <option value="">Loading subjects...</option>
-      </select>
-
-      <label>Grade</label>
-      <select id="teacherGrade">
-        <option value="9">Grade 9</option>
-        <option value="10">Grade 10</option>
-        <option value="11">Grade 11</option>
-        <option value="12">Grade 12</option>
-      </select>
-
-      <label>Section</label>
-      <select id="teacherSection"></select>
-
-      <button onclick="createTeacherCode()">Create Access Code</button>
-      <div id="codeMessage" class="message hidden"></div>
-    </section>
-
-    <section id="teacherPanel" class="card hidden">
-      <h2>My Teaching Assignments</h2>
-      <div id="assignments">Loading...</div>
-    </section>
-
-    <section id="examPanel" class="card">
-      <h2 id="examHeading">Exams</h2>
-      <div id="examList">Loading exams...</div>
-    </section>
-  </section>
+<section id="adminExamsPanel" class="card hidden">
+<h2>Exam Approval</h2>
+<div id="adminExams">Loading...</div>
+</section>
+</section>
 </main>
 
 <script>
-  const SUPABASE_URL = "https://dpcsuoivnigkgpkjyjle.supabase.co";
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://dpcsuoivnigkgpkjyjle.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+if (!window.supabase) alert("Supabase library could not load. Check your internet connection.");
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let user=null, profile=null;
+const sections="ABCDEFGHIJKLM".split("");
 
-  const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+function msg(id,text,type=""){const e=document.getElementById(id);e.textContent=text;e.className="msg "+type;e.classList.remove("hidden")}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function initSections(){document.getElementById("tSection").innerHTML=sections.map(s=>`<option value="${s}">${s}</option>`).join("")}
+initSections();
 
-  let currentUser = null;
-  let currentProfile = null;
+async function login(){
+ const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+ const password=document.getElementById("loginPassword").value;
+ const role=document.getElementById("loginRole").value;
+ const btn=document.getElementById("loginBtn");
+ if(!email||!password)return msg("loginMsg","Email fi password guuti.","error");
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR"))return msg("loginMsg","Dura SUPABASE_ANON_KEY bakka isaa key publishable/anon kee galchi.","error");
+ btn.disabled=true;btn.textContent="Logging in...";
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  user=data.user;
+  const {data:p,error:pe}=await db.from("profiles").select("id,full_name,email,role,grade").eq("id",user.id).maybeSingle();
+  if(pe)throw pe;if(!p)throw new Error("Profile hin argamne. Admin waliin qunnami.");
+  if(p.role!==role)throw new Error("Role filatte account kee waliin wal hin simne.");
+  profile=p;await dashboard();
+ }catch(e){await db.auth.signOut();msg("loginMsg",e.message||"Login failed.","error")}
+ finally{btn.disabled=false;btn.textContent="Login"}
+}
 
-  const sections = "ABCDEFGHIJKLM".split("");
+async function dashboard(){
+ document.getElementById("loginCard").classList.add("hidden");
+ document.getElementById("app").classList.remove("hidden");
+ document.getElementById("welcome").textContent="Welcome, "+profile.full_name;
+ document.getElementById("identity").textContent=profile.role.toUpperCase()+(profile.grade?" • Grade "+profile.grade:"");
+ if(profile.role==="admin"){
+  document.getElementById("adminPanel").classList.remove("hidden");
+  document.getElementById("adminExamsPanel").classList.remove("hidden");
+  await loadSubjects();await loadAdminExams();
+ }else if(profile.role==="teacher"){
+  document.getElementById("teacherPanel").classList.remove("hidden");
+  await loadTeacherData();
+ }else if(profile.role==="student"){
+  document.getElementById("studentPanel").classList.remove("hidden");
+  await loadStudentExams();
+ }
+}
 
-  function showMessage(id, text, type = "") {
-    const el = document.getElementById(id);
-    el.textContent = text;
-    el.className = "message " + type;
-    el.classList.remove("hidden");
-  }
+async function loadSubjects(){
+ const {data,error}=await db.from("subjects").select("id,name").order("name");
+ const selects=["tSubject","examSubject"];
+ if(error){selects.forEach(id=>document.getElementById(id).innerHTML="<option value=''>Could not load subjects</option>");return}
+ selects.forEach(id=>document.getElementById(id).innerHTML="<option value=''>Select subject</option>"+(data||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join(""));
+}
 
-  function fillSections() {
-    document.getElementById("teacherSection").innerHTML =
-      sections.map(s => `<option value="${s}">${s}</option>`).join("");
-  }
-  fillSections();
+async function createTeacherCode(){
+ const full_name=document.getElementById("tName").value.trim();
+ const email=document.getElementById("tEmail").value.trim().toLowerCase();
+ const subject_id=document.getElementById("tSubject").value;
+ const grade=Number(document.getElementById("tGrade").value);
+ const section=document.getElementById("tSection").value;
+ if(!full_name||!email||!subject_id)return msg("codeMsg","Maqaa, email fi subject guuti.","error");
+ try{
+  const {data:sd}=await db.auth.getSession();if(!sd.session)throw new Error("Admin irra deebi'ii login godhi.");
+  // invoke() attaches the signed-in user's access token automatically.
+  const {data,error}=await db.functions.invoke("Create-teacher",{body:{full_name,email,subject_id,grade,section}});
+  if(error)throw error;if(data?.error)throw new Error(data.error);
+  const code=data?.access_code||data?.code||data?.teacher_code;
+  if(code){msg("codeMsg","Teacher Access Code (amma qofa mul'ata): "+code,"ok")}
+  else{msg("codeMsg",JSON.stringify(data),"ok")}
+  document.getElementById("tName").value="";document.getElementById("tEmail").value="";
+ }catch(e){msg("codeMsg",e.message||"Access code uumuu hin dandeenye.","error")}
+}
 
-  async function login() {
-    const role = document.getElementById("loginRole").value;
-    const identity = document.getElementById("loginIdentity").value.trim();
-    const password = document.getElementById("loginPassword").value;
-    const btn = document.getElementById("loginBtn");
+async function loadTeacherData(){
+ const {data,error}=await db.from("teacher_assignments").select("grade,section,subjects(name)").eq("teacher_id",user.id);
+ document.getElementById("assignments").innerHTML=error?esc(error.message):(!data?.length?"Assignment hin jiru.":data.map(a=>`<div class="item">${esc(a.subjects?.name)} — Grade ${a.grade}, Section ${esc(a.section)}</div>`).join(""));
+ const {data:subs}=await db.from("subjects").select("id,name").order("name");
+ document.getElementById("examSubject").innerHTML="<option value=''>Select subject</option>"+(subs||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+ await loadTeacherExams();
+}
 
-    if (!identity || !password) {
-      showMessage("loginMessage", "Email/Student ID fi password guuti.", "error");
-      return;
-    }
+async function createExam(){
+ const title=document.getElementById("examTitle").value.trim();
+ const subject_id=document.getElementById("examSubject").value;
+ const grade=Number(document.getElementById("examGrade").value);
+ const duration_minutes=Number(document.getElementById("examDuration").value);
+ if(!title||!subject_id||!duration_minutes||duration_minutes<1)return msg("examMsg","Title, subject fi duration sirreessi.","error");
+ try{
+  const {data,error}=await db.from("exams").insert({title,subject_id,grade,duration_minutes,created_by:user.id,approval_status:"pending",is_published:false}).select().single();
+  if(error)throw error;
+  msg("examMsg","Exam save ta'eera; Admin approval eeggata. Amma gaaffilee itti dabaluun fuula itti aanu keessatti ni dabalama.","ok");
+  document.getElementById("examTitle").value="";await loadTeacherExams();
+ }catch(e){msg("examMsg",e.message||"Exam save hin taane.","error")}
+}
 
-    btn.disabled = true;
-    btn.textContent = "Logging in...";
+async function loadTeacherExams(){
+ const target=document.getElementById("teacherExams");
+ const {data,error}=await db.from("exams").select("id,title,grade,duration_minutes,approval_status,is_published").eq("created_by",user.id).order("created_at",{ascending:false});
+ if(error){target.textContent=error.message;return}
+ target.innerHTML=!data?.length?"Exam hin jiru.":data.map(e=>`<div class="item"><strong>${esc(e.title)}</strong><br><span class="pill">Grade ${e.grade}</span> <span class="pill">${esc(e.approval_status)}</span> <span class="pill">${e.duration_minutes} min</span></div>`).join("");
+}
 
-    try {
-      // Student ID example: GHS-0001
-      const email = role === "student"
-        ? identity.toLowerCase() + "@students.gohatsion.edu.et"
-        : identity.toLowerCase();
+async function loadAdminExams(){
+ const target=document.getElementById("adminExams");
+ const {data,error}=await db.from("exams").select("id,title,grade,approval_status,is_published,profiles:created_by(full_name)").order("created_at",{ascending:false});
+ if(error){target.textContent=error.message;return}
+ target.innerHTML=!data?.length?"Exam hin jiru.":data.map(e=>`<div class="item"><strong>${esc(e.title)}</strong><br>Grade ${e.grade} • ${esc(e.approval_status)} • ${esc(e.profiles?.full_name||"Teacher")}</div>`).join("");
+}
 
-      const { data: authData, error: authError } =
-        await db.auth.signInWithPassword({ email, password });
+async function loadStudentExams(){
+ const target=document.getElementById("studentExams");
+ if(!profile.grade){target.textContent="Grade profile kee keessatti hin galmoofne. Admin qunnami.";return}
+ const {data,error}=await db.from("exams").select("id,title,grade,duration_minutes").eq("is_published",true).eq("grade",profile.grade).order("created_at",{ascending:false});
+ if(error){target.textContent=error.message;return}
+ target.innerHTML=!data?.length?"Exam published ta'e hin jiru.":data.map(e=>`<div class="item"><strong>${esc(e.title)}</strong><br>Grade ${e.grade} • ${e.duration_minutes} minutes</div>`).join("");
+}
 
-      if (authError) throw authError;
-
-      currentUser = authData.user;
-
-      const { data: profile, error: profileError } = await db
-        .from("profiles")
-        .select("id,full_name,email,role,grade")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-      if (!profile) throw new Error("User profile hin argamne. Admin waliin qunnami.");
-      if (profile.role !== role) {
-        throw new Error("Role filatte fi role account kee wal hin simne.");
-      }
-
-      currentProfile = profile;
-      await openDashboard();
-
-    } catch (err) {
-      await db.auth.signOut();
-      showMessage("loginMessage", err.message || "Login failed.", "error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Login";
-    }
-  }
-
-  async function openDashboard() {
-    document.getElementById("loginCard").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-
-    document.getElementById("welcome").textContent =
-      "Welcome, " + currentProfile.full_name;
-
-    document.getElementById("userInfo").textContent =
-      "Role: " + currentProfile.role +
-      (currentProfile.grade ? " | Grade: " + currentProfile.grade : "");
-
-    if (currentProfile.role === "admin") {
-      document.getElementById("adminPanel").classList.remove("hidden");
-      await loadSubjects();
-    }
-
-    if (currentProfile.role === "teacher") {
-      document.getElementById("teacherPanel").classList.remove("hidden");
-      await loadAssignments();
-    }
-
-    await loadExams();
-  }
-
-  async function loadSubjects() {
-    const select = document.getElementById("teacherSubject");
-    select.innerHTML = "<option value=''>Loading...</option>";
-
-    const { data, error } = await db
-      .from("subjects")
-      .select("id,name")
-      .order("name");
-
-    if (error) {
-      select.innerHTML = "<option value=''>Could not load subjects</option>";
-      return;
-    }
-
-    select.innerHTML = "<option value=''>Select subject</option>" +
-      data.map(s =>
-        `<option value="${s.id}">${escapeHtml(s.name)}</option>`
-      ).join("");
-  }
-
-  async function createTeacherCode() {
-    const full_name = document.getElementById("teacherName").value.trim();
-    const email = document.getElementById("teacherEmail").value.trim();
-    const subject_id = document.getElementById("teacherSubject").value;
-    const grade = Number(document.getElementById("teacherGrade").value);
-    const section = document.getElementById("teacherSection").value;
-
-    if (!full_name || !email || !subject_id) {
-      showMessage("codeMessage", "Maqaa, email fi subject guuti.", "error");
-      return;
-    }
-
-    try {
-      const { data: sessionData } = await db.auth.getSession();
-      if (!sessionData.session) throw new Error("Admin irra deebi'ii login godhi.");
-
-      // Supabase sends the current user's access token automatically.
-      const { data, error } = await db.functions.invoke("Create-teacher", {
-        body: { full_name, email, subject_id, grade, section }
-      });
-
-      if (error) throw error;
-      if (data && data.error) throw new Error(data.error);
-
-      const code = data.access_code || data.code || data.teacher_code;
-
-      if (code) {
-        showMessage(
-          "codeMessage",
-          "Teacher Access Code: " + code +
-          " — code kana teacher qofaaf kenni. Yeroo tokko qofa mul'ata.",
-          "success"
-        );
-      } else {
-        showMessage(
-          "codeMessage",
-          JSON.stringify(data),
-          "success"
-        );
-      }
-
-      document.getElementById("teacherName").value = "";
-      document.getElementById("teacherEmail").value = "";
-
-    } catch (err) {
-      showMessage("codeMessage", err.message || "Code uumuu hin dandeenye.", "error");
-    }
-  }
-
-  async function loadAssignments() {
-    const target = document.getElementById("assignments");
-
-    const { data, error } = await db
-      .from("teacher_assignments")
-      .select("grade,section,subjects(name)")
-      .eq("teacher_id", currentUser.id);
-
-    if (error) {
-      target.textContent = "Assignments fe'uu hin dandeenye: " + error.message;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      target.textContent = "Amma assignment hin jiru.";
-      return;
-    }
-
-    target.innerHTML = data.map(a =>
-      `<div class="item">
-        ${escapeHtml(a.subjects?.name || "Subject")} —
-        Grade ${a.grade}, Section ${escapeHtml(a.section || "")}
-      </div>`
-    ).join("");
-  }
-
-  async function loadExams() {
-    const target = document.getElementById("examList");
-    const role = currentProfile.role;
-
-    let query = db.from("exams")
-      .select("id,title,grade,duration_minutes,approval_status,is_published")
-      .order("created_at", { ascending: false });
-
-    if (role === "student") {
-      query = query.eq("is_published", true)
-        .eq("grade", currentProfile.grade);
-    } else if (role === "teacher") {
-      query = query.eq("created_by", currentUser.id);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      target.textContent = "Exam fe'uu hin dandeenye: " + error.message;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      target.textContent = "Exam ammaaf hin jiru.";
-      return;
-    }
-
-    target.innerHTML = data.map(e =>
-      `<div class="item">
-        <strong>${escapeHtml(e.title)}</strong><br>
-        Grade ${e.grade} |
-        ${e.duration_minutes} minutes |
-        ${escapeHtml(e.approval_status || "")}
-      </div>`
-    ).join("");
-  }
-
-  async function logout() {
-    await db.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    document.getElementById("dashboard").classList.add("hidden");
-    document.getElementById("loginCard").classList.remove("hidden");
-    document.getElementById("loginPassword").value = "";
-    document.getElementById("loginMessage").classList.add("hidden");
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, ch => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[ch]);
-  }
-
-  // Restore an existing signed-in session.
-  db.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT") {
-      currentUser = null;
-      currentProfile = null;
-    }
-  });
+async function logout(){
+ await db.auth.signOut();user=null;profile=null;
+ document.getElementById("app").classList.add("hidden");document.getElementById("loginCard").classList.remove("hidden");
+ document.getElementById("loginPassword").value="";
+ ["adminPanel","teacherPanel","studentPanel","adminExamsPanel"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+}
 </script>
 </body>
 </html>
